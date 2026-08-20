@@ -60,9 +60,9 @@ graph TD
 |---|---|---|---|---|---|---|---|
 | **How2Sign** | Continuous | 80+ hrs, ~35K clips | English text, Glosses, 2D/3D keypoints | 11 | Studio (green screen) | ~290 GB (full RGB) / ~20-30 GB (clips+keypoints) | ✅ High (pre-extracted features available) |
 | **YouTube-ASL** | Continuous | ~1,000+ hrs | English text (auto-aligned) | 100s | In-the-wild | Very large (TBs) | ⚠️ Medium (noisy, needs heavy filtering) |
-| **OpenASL** | Continuous | ~200 hrs | English text | 200+ | In-the-wild | Large | ⚠️ Medium |
-| **WLASL** | Isolated (word-level) | 2,000 words, ~21K clips | Word labels | 100+ | Mixed | ~15 GB | ❌ Wrong task (word-level, not sentences) |
-| **MS-ASL** | Isolated (word-level) | 1,000 signs, ~25K clips | Word labels | 222 | Mixed | Moderate | ❌ Wrong task |
+
+> [!NOTE]
+> **YouTube-ASL Storage Hack:** We don't have to download this dataset for Google Colab/Kaggle. We can just inject video links to make the script stream, saves us the storage.
 
 ### 3.3 Recommended Dataset: How2Sign
 
