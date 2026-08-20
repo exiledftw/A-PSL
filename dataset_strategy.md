@@ -16,15 +16,16 @@ Since the pre-extracted keypoints for How2Sign are relatively lightweight (~20-3
 
 **Role:** The supplementary dataset to improve real-world generalization and signer diversity.
 
-While How2Sign provides clean data, it features a limited number of signers in a controlled studio environment. To make our model robust to real-world conditions, we will augment our training with the **YouTube-ASL** dataset. 
+**Source:** The pre-extracted keypoint version of YouTube-ASL is hosted on LINDAT/CLARIAH-CZ digital library by Zelezny, Hruz, Straka, and Gueuwou (2024). Permanent handle: http://hdl.handle.net/11234/1-5898. The dataset page is at https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-5898.
 
-### The Streaming Storage Hack
+**Format:** 390,547 JSON files containing frame-by-frame 2D keypoints extracted using MediaPipe, generating 208 2D keypoints per frame representing body, face, hands, and pose landmarks. Files are distributed across 10 separate zip files for easier downloading.
 
-YouTube-ASL contains thousands of hours of "in-the-wild" video, which would easily consume terabytes of storage—far exceeding the limits of Colab or Kaggle. 
+**Access strategy:** Do not download videos. Do not run MediaPipe extraction. Instead, obtain the 10 direct .zip download URLs from the LINDAT file listing page. Create a new public Kaggle dataset using Kaggle's "New Dataset → Remote Files" UI feature — paste each zip URL so Kaggle's servers pull the files directly from LINDAT into Kaggle dataset storage. No local bandwidth or notebook scratch space is consumed during this process.
 
-To bypass this hardware constraint, we will implement an **on-the-fly streaming pipeline**:
-1. Instead of downloading the massive video corpus upfront, we will only store the lightweight metadata file containing the **YouTube video IDs** and their corresponding text annotations.
-2. During the training loop, our custom data loader will use the video ID to dynamically stream or temporarily download the required video chunk for the current batch.
-3. Once the batch is processed (e.g., features extracted and passed through the model), the video chunk is immediately discarded from disk.
+**Storage:** The dataset lives in Kaggle's dataset storage (200GB limit), not the notebook's working directory (20GB limit). Once uploaded publicly, mount it in any training notebook via "Add Data" in the notebook sidebar. It will appear at `/kaggle/input/<dataset-name>/` and is readable directly without copying into working space. Both team members (Khizer and Rehan) can mount and use the same public dataset.
 
-This approach ensures that our storage footprint remains virtually zero while allowing the model to train on an essentially infinite stream of diverse, real-world ASL data.
+**Caption pairing:** The keypoint JSON files do not contain English translations. Captions must be obtained separately from the YouTube-ASL metadata TSV available on Google's GitHub (google-research/google-research/youtube_asl). Each JSON clip is matched to its English caption by joining on the clip identifier (`video_id` + `start_timestamp` + `end_timestamp`) as the key.
+
+**Pre-training check:** Before launching training, verify the JSON structure of a sample file to confirm exact field names (`keypoints`, `video_id`, `start`, `end`) and confirm the clip identifier format matches the YouTube-ASL captions TSV. Adjust the Dataset class join key accordingly.
+
+**Why this approach:** Avoids all video downloading, proxy usage, yt-dlp rate limiting, and local storage pressure. Kaggle free tier's 20GB scratch space is preserved entirely for model checkpoints and outputs. Dataset persists permanently across sessions — no re-downloading on session restart.
