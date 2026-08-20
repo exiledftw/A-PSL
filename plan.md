@@ -152,7 +152,9 @@ Step 7 ─► Feature selection (optional optimization):
 
 ```
 Step 8 ─► Tokenize English sentences using a BPE tokenizer (e.g., SentencePiece)
-Step 9 ─► Tokenize Gloss sequences (simple whitespace tokenization + vocabulary mapping)
+Step 9 ─► Process Gloss Sequences:
+           • If gloss is missing for a clip, use the Gemini API to automatically translate the English text into an ASL gloss representation.
+           • Tokenize Gloss sequences (simple whitespace tokenization + vocabulary mapping)
 Step 10 ─► Add special tokens: <BOS>, <EOS>, <PAD>
 Step 11 ─► Build vocabulary files and save
 ```
@@ -313,5 +315,5 @@ gantt
 > These items require alignment between both teams before we begin execution.
 
 1. **Feature Selection Trade-off:** Should we start with all 543 landmarks (more information, higher memory) or just hands+pose (75 landmarks, faster training)? Recommendation: Start with 75, add face later if needed.
-2. **Gloss Dependency:** If gloss annotations are incomplete or noisy in How2Sign, should we fall back to direct Video → English training?
+2. **Gloss Dependency / Generation:** For any missing or incomplete gloss annotations in How2Sign, we will utilize the Gemini API to automatically generate the ASL gloss from the English sentence. We need to finalize the prompt/setup for this API call.
 3. **Task Division Agreement:** Does Rehan's team agree with the suggested split in Section 8?
