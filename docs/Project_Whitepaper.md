@@ -24,6 +24,14 @@ This document serves as the living research and architectural whitepaper, tracki
 *   **The Solution:** We use **mT5** (Multilingual Text-to-Text Transfer Transformer), which natively understands English and Urdu. We freeze the entire mT5 model to save VRAM and only train lightweight **LoRA (Low-Rank Adaptation)** matrices injected into its attention layers.
 *   **The Justification:** This allows us to "free-ride" on the grammar engine of a massive LLM without bearing the computational cost of training it, focusing 100% of our compute budget purely on the translation bridging layer.
 
+### 2.4 The Hybrid Architecture (Pre-Trained Language + From-Scratch Vision)
+*   **The Approach:** The model consists of a Language Half (mT5) and a Vision Half (Visual Encoder). We do not train the language part from scratch; we leverage Google's massively pre-trained mT5 model which already possesses flawless English and Urdu grammar. However, the Visual Encoder is trained completely from scratch on the YouTube-ASL dataset.
+*   **The Justification:** The original academic researchers (Zelezny et al.) provided the architectural blueprint but withheld the pre-trained weights for the Visual Encoder. Training the vision half from scratch on our end is mathematically required, but it is fast and feasible precisely because the heavy language lifting is already handled by the pre-trained mT5.
+
+### 2.5 Dataset Downsampling Strategy (100k vs 600k)
+*   **The Approach:** The full YouTube-ASL dataset contains ~600,000 clips spanning nearly 400,000 JSON files distributed across 10 zip archives on LINDAT. We will downsample this and train our foundation model on just 100,000 clips (roughly 2.5 zip archives).
+*   **The Justification:** 100,000 clips is more than enough data for the Visual Encoder to learn the spatial-temporal mechanics of hand and face movements (the "how to see" problem) for a prototype. Training on the full 600k clips on a single Kaggle T4 GPU would take weeks of continuous compute. By constraining to 100k clips, we achieve rapid iteration times (verifying the loss curve decreases within hours) without sacrificing the core gesture-tracking capabilities required for the subsequent PSL Domain Adaptation.
+
 ---
 
 ## 3. The Minimum Viable Product (MVP) Blueprint
