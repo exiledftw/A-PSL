@@ -1,7 +1,7 @@
-# Project A-PSL: Compute-Efficient Medical Sign Language Translation
+# SANA Sign: Compute-Efficient Medical Sign Language Translation
 
 ## 1. Abstract
-Project A-PSL aims to bridge the communication gap between healthcare providers and the Deaf community by developing a two-way Pakistani Sign Language (PSL) translation system. Given the extreme data scarcity of continuous PSL and strict hardware constraints (training on 15GB VRAM T4 GPUs via Kaggle/Colab), traditional raw-video AI approaches are unfeasible. This project relies on a highly optimized, compute-efficient pipeline: leveraging MediaPipe 2D keypoints, Cross-Modal Transformers, Transfer Learning from American Sign Language (ASL), and Low-Rank Adaptation (LoRA) on multilingual language models (mT5). 
+SANA Sign is a module within the SANA AI healthcare platform (HIMS) aimed at bridging the communication gap between healthcare providers and the Deaf community through a two-way Pakistani Sign Language (PSL) translation system. Currently being developed as a prototype for the SIMPACT 2026 showcase (CIME Karachi), the system is built under extreme data scarcity and strict hardware constraints. Traditional raw-video AI approaches are unfeasible. This project relies on a highly optimized, compute-efficient pipeline: leveraging MediaPipe 2D keypoints, Cross-Modal Transformers, Transfer Learning from American Sign Language (ASL), and Low-Rank Adaptation (LoRA) on multilingual language models (mT5). 
 
 This document serves as the living research and architectural whitepaper, tracking all technical decisions, verified methodologies, and current progress.
 
@@ -44,13 +44,20 @@ To deliver a working prototype for contests and demonstrations without waiting f
 
 ### 3.1 Patient to Doctor (PSL Gestures +' Text)
 *   **Methodology:** Sequence Classification.
-*   **Implementation:** We define a strict vocabulary of 30-50 emergency medical phrases (e.g., "I have a headache," "Where is the pain?"). We record custom videos of these phrases, extract keypoints, and train a lightweight LSTM or Spatial-Transformer classifier.
-*   **Justification:** Full autoregressive translation requires massive data. Classification over a fixed vocabulary guarantees >90% accuracy, trains in minutes, and runs flawlessly in real-time on a standard webcam for a live demo.
+*   **Implementation:** We define a strict vocabulary of 30-50 emergency medical phrases. We record custom videos of these phrases, extract keypoints, and train a lightweight LSTM or Spatial-Transformer classifier.
+*   **Target Metrics:** Prototype demonstrations must achieve **>90% Accuracy** on the defined vocabulary, with an inference **Latency** of <2 seconds from sign completion to text display.
+*   **Justification:** Full autoregressive translation requires massive data. Classification over a fixed vocabulary guarantees high accuracy, trains in minutes, and meets strict latency requirements for a live clinical demo.
 
 ### 3.2 Doctor to Patient (Voice +' Avatar Gestures)
 *   **Methodology:** Trigger-Based Avatar Animation.
-*   **Implementation:** We utilize OpenAI Whisper (or Google Cloud STT) for real-time Voice-to-Text transcription. The text is mapped via NLP similarity to our 50 predefined phrases. The matched phrase ID triggers a pre-animated 3D avatar sequence (built in Unity/Web Canvas).
-*   **Justification:** Real-time generative skeletal AI suffers from severe "uncanny valley" effects and high latency. Triggering pre-rendered, high-quality animations ensures immediate, professional, and socially acceptable feedback for the patient.
+*   **Implementation:** We utilize OpenAI Whisper (or Google Cloud STT) for real-time Voice-to-Text transcription. The text is mapped via NLP similarity to our predefined phrases. The matched phrase ID triggers a pre-animated 3D avatar sequence.
+*   **Target Metrics:** Voice-to-Text accuracy must exceed 85%, and the Avatar response **Latency** must be <1.5 seconds from the end of the clinician's speech.
+*   **Justification:** Real-time generative skeletal AI suffers from severe "uncanny valley" effects and high latency. Triggering pre-rendered animations ensures immediate, professional feedback.
+
+### 3.3 AI Safety & Escalation Framework
+*   **Methodology:** Confidence Thresholding & Human Fallback.
+*   **Implementation:** The patient-to-doctor classifier output is gated by a confidence score threshold. If the model's confidence in a translation falls below a clinically defined safety threshold (e.g., 85%), the system suppresses the translation.
+*   **Justification:** To comply with SIMPACT AI safety expectations, low-confidence medical translations must never be presented to the clinician. The system instead outputs a fallback message ("Low Confidence: Human Interpreter Required"), ensuring patient safety and minimizing liability.
 
 ---
 
