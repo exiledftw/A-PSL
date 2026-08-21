@@ -11,7 +11,7 @@ This document serves as the living research and architectural whitepaper, tracki
 
 ### 2.1 Why MediaPipe Keypoints Instead of Raw Video?
 *   **The Constraint:** Processing continuous raw video requires massive storage (terabytes) and exorbitant GPU VRAM to compute 3D convolutional features (like I3D). 
-*   **The Solution:** We extract 2D skeletal coordinates (Face, Hands, Pose) using MediaPipe, reducing a 50MB video into a lightweight JSON file containing coordinates (`Frames × 75 Landmarks × 3 coordinates`).
+*   **The Solution:** We extract 2D skeletal coordinates (Face, Hands, Pose) using MediaPipe, reducing a 50MB video into a lightweight JSON file containing coordinates (`Frames A- 75 Landmarks A- 3 coordinates`).
 *   **The Justification:** This strips away irrelevant background noise and lighting conditions, directly isolating human movement. It reduces our dataset size from hundreds of gigabytes down to a fraction that fits effortlessly within Kaggle's working memory, allowing a standard T4 GPU to process sequences without Out-Of-Memory (OOM) crashes.
 
 ### 2.2 Why Transfer Learning from ASL to PSL?
@@ -28,21 +28,26 @@ This document serves as the living research and architectural whitepaper, tracki
 *   **The Approach:** The model consists of a Language Half (mT5) and a Vision Half (Visual Encoder). We do not train the language part from scratch; we leverage Google's massively pre-trained mT5 model which already possesses flawless English and Urdu grammar. However, the Visual Encoder is trained completely from scratch on the YouTube-ASL dataset.
 *   **The Justification:** The original academic researchers (Zelezny et al.) provided the architectural blueprint but withheld the pre-trained weights for the Visual Encoder. Training the vision half from scratch on our end is mathematically required, but it is fast and feasible precisely because the heavy language lifting is already handled by the pre-trained mT5.
 
-### 2.5 Dataset Downsampling Strategy (100k vs 600k)
-*   **The Approach:** The full YouTube-ASL dataset contains ~600,000 clips spanning nearly 400,000 JSON files distributed across 10 zip archives on LINDAT. We will downsample this and train our foundation model on just 100,000 clips (roughly 2.5 zip archives).
-*   **The Justification:** 100,000 clips is more than enough data for the Visual Encoder to learn the spatial-temporal mechanics of hand and face movements (the "how to see" problem) for a prototype. Training on the full 600k clips on a single Kaggle T4 GPU would take weeks of continuous compute. By constraining to 100k clips, we achieve rapid iteration times (verifying the loss curve decreases within hours) without sacrificing the core gesture-tracking capabilities required for the subsequent PSL Domain Adaptation.
+### 2.5 Dataset Downsampling & Epoch Checkpointing
+*   **The Approach:** The full YouTube-ASL dataset contains ~600,000 clips distributed across 10 massive zip archives. To hit our ~100k clip prototype target, we will define one "Epoch" as sequentially training across exactly 3 zip files (~117,000 clips). The Kaggle training loop will execute as follows: Mount Zip 1 -> Train -> Save Checkpoint -> Mount Zip 2 -> Resume -> Save Checkpoint -> Mount Zip 3 -> Save Checkpoint (Epoch 1 Complete).
+*   **The Justification:** Loading all data simultaneously causes fatal I/O disk thrashing and exceeds Kaggle dataset limits. Sequential chunking perfectly mimics production-scale Deep Learning data streaming. Furthermore, aggressively saving checkpoints between every zip file guarantees that if a Kaggle session times out or crashes (a common occurrence on the free tier), zero training progress is lost.
+
+### 2.6 The Zero-Storage Kaggle Workaround
+*   **The Constraint:** Kaggle's `/kaggle/working/` local disk is hard-capped at 20GB. Attempting to extract a 34GB LINDAT zip file via `!unzip` immediately crashes the environment. Furthermore, Kaggle's automatic dataset extractor fails to unpack the LINDAT API URLs because they lack a `.zip` extension (saving them as a raw `content` blob).
+*   **The Solution:** We bypass extraction entirely. We utilize Python's built-in `zipfile` library to stream the specific JSON keypoint files directly from the compressed `content` blob into RAM on the fly during the PyTorch `__getitem__` call.
+*   **The Justification:** This consumes 0 bytes of disk space and eliminates hours of extraction time. We pair this with the newly discovered `YT.translations.all.json` file (bundled by the original researchers), which maps `video_id.start-end` string keys directly to English sentences, providing an O(1) lookup dictionary that perfectly matches the filenames inside the zip.
 
 ---
 
 ## 3. The Minimum Viable Product (MVP) Blueprint
 To deliver a working prototype for contests and demonstrations without waiting for the full production model, we employ a tightly constrained, deterministic architecture.
 
-### 3.1 Patient to Doctor (PSL Gestures → Text)
+### 3.1 Patient to Doctor (PSL Gestures +' Text)
 *   **Methodology:** Sequence Classification.
 *   **Implementation:** We define a strict vocabulary of 30-50 emergency medical phrases (e.g., "I have a headache," "Where is the pain?"). We record custom videos of these phrases, extract keypoints, and train a lightweight LSTM or Spatial-Transformer classifier.
 *   **Justification:** Full autoregressive translation requires massive data. Classification over a fixed vocabulary guarantees >90% accuracy, trains in minutes, and runs flawlessly in real-time on a standard webcam for a live demo.
 
-### 3.2 Doctor to Patient (Voice → Avatar Gestures)
+### 3.2 Doctor to Patient (Voice +' Avatar Gestures)
 *   **Methodology:** Trigger-Based Avatar Animation.
 *   **Implementation:** We utilize OpenAI Whisper (or Google Cloud STT) for real-time Voice-to-Text transcription. The text is mapped via NLP similarity to our 50 predefined phrases. The matched phrase ID triggers a pre-animated 3D avatar sequence (built in Unity/Web Canvas).
 *   **Justification:** Real-time generative skeletal AI suffers from severe "uncanny valley" effects and high latency. Triggering pre-rendered, high-quality animations ensures immediate, professional, and socially acceptable feedback for the patient.
@@ -51,16 +56,16 @@ To deliver a working prototype for contests and demonstrations without waiting f
 
 ## 4. Current Progress & Verified Milestones
 
-### ✅ Completed & Verified
-- **Architectural Blueprint:** The complete pipeline (Keypoints → Visual Encoder → LoRA mT5) has been documented and verified to theoretically fit within Kaggle T4 parameters.
+### o. Completed & Verified
+- **Architectural Blueprint:** The complete pipeline (Keypoints +' Visual Encoder +' LoRA mT5) has been documented and verified to theoretically fit within Kaggle T4 parameters.
 - **Dataset Storage Hack:** Successfully verified a pipeline to bypass Kaggle's 20GB local storage limit by mounting the massive LINDAT YouTube-ASL zip files directly via the "Remote Files" UI.
 - **Checklist Framework:** Established a 6-phase tracker (`checklist.md`) mapping the entire pipeline from raw data to the live MVP demo.
 
-### 🔴 Immediate Next Steps (Phase 1 Execution)
-1.  Initialize the public Kaggle dataset by directly linking the 10 LINDAT URL zip files.
-2.  Download the official Google Research TSV captions.
-3.  Execute a Python script to join the JSON keypoint files to the TSV captions using `video_id` and timestamp composite keys.
-4.  Downsample the dataset to a balanced 100,000 clips to prepare for Phase 3 ASL Pre-training.
+### 🚀 Immediate Next Steps (Phase 1 Execution)
+1.  Initialize the public Kaggle dataset by linking the first LINDAT URL (which downloads as the `content` blob) and the `YT.translations.all.json` file.
+2.  Develop the PyTorch `Dataset` class to parse the JSON translations dictionary.
+3.  Implement the `zipfile` memory-streaming logic to pair the loaded text with the compressed keypoints on the fly.
+4.  Verify the pipeline by successfully extracting and structuring `dataset[0]` without triggering Kaggle OOM errors.
 
 ---
 *Note: This document is strictly bounded by what is technically feasible under current hardware constraints. No assumptions are made regarding the existence of continuous PSL datasets; all PSL data required for Phase 3 and the MVP will be custom-recorded under constrained protocols.*
