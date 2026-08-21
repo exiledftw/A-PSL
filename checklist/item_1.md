@@ -100,8 +100,8 @@ graph TD
 
 ### Phase 1: Data Pipeline (YouTube-ASL)
 
-- [ ] **1.1** Obtain the 10 direct `.zip` download URLs from the LINDAT file listing page
-- [ ] **1.2** Create a public Kaggle dataset using "New Dataset → Remote Files" — paste each zip URL so Kaggle pulls files from LINDAT directly
+- [x] **1.1** Obtain the 10 direct `.zip` download URLs from the LINDAT file listing page
+- [/] **1.2** Create a public Kaggle dataset using "New Dataset → Remote Files" — paste each zip URL so Kaggle pulls files from LINDAT directly
 - [ ] **1.3** Verify the Kaggle dataset mounts correctly at `/kaggle/input/<dataset-name>/`
 - [ ] **1.4** Download the YouTube-ASL captions TSV from Google Research GitHub
 - [ ] **1.5** Write a Python script to join JSON clip files to English captions using composite key (`video_id` + `start_timestamp` + `end_timestamp`)
