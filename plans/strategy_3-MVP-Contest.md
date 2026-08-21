@@ -1,8 +1,11 @@
-# MVP & Contest Strategy: Two-Way Medical PSL
+# SANA Sign - SIMPACT 2026 Prototype
+
+**Showcase Date:** September 17, 2026 (SIMPACT 2026, CIME Karachi)
+**Scope:** A PROTOTYPE only - not a clinically validated or fully deployed product. All strategies below are scoped to this constraint.
 
 For a contest prototype (Minimum Viable Product), a massive 3-phase LLM training pipeline is overkill and too slow. Instead, the focus should be on a **Highly Constrained Vocabulary** and **End-to-End Visual Flow**. 
 
-We will build two pipelines: 
+We will build two pipelines under the SANA Sign module (part of the SANA AI HIMS):
 1. **Patient to Doctor:** PSL Gestures → English/Urdu Text
 2. **Doctor to Patient:** Voice → Text → Avatar PSL Gestures
 
@@ -35,7 +38,27 @@ Training a generative AI to create dynamic 3D avatar movements from scratch is a
     *   **Trigger & Blend:** When the doctor says "Take this medicine," Whisper transcribes it, the system matches it to the phrase ID, and the Unity/Web interface immediately triggers the corresponding pre-made 3D animation. 
     *   **Why it wins contests:** It looks incredibly polished, works instantly, and completely avoids the uncanny valley of AI-generated skeleton movements. 
 
-## 3. The Contest Presentation Angle
+---
+
+## 3. Safety Framework & Fallback Mechanism (SIMPACT Requirement)
+
+To ensure clinical safety during prototype demonstrations, the system is designed with a strict confidence threshold. 
+*   **Confidence Thresholds:** During Patient → Doctor sign classification, the model outputs a confidence percentage (e.g., 92%).
+*   **Human Escalation:** If the confidence falls below a clinically validated threshold (e.g., 85%), the system will automatically suppress the prediction and display an escalation message to the clinician: *"Low Confidence: Human Interpreter Required."* This prevents dangerous medical mistranslations from being shown to the doctor.
+
+---
+
+## 4. Non-Technical SIMPACT Deliverables
+
+To fully satisfy the SIMPACT reviewer feedback, the following documentation and protocols must be drafted alongside the technical build:
+*   **PSL Dataset Details:** Full documentation of our custom 50-phrase medical dataset (demographics, recording conditions).
+*   **Video Recording Consent Process:** A drafted UI/UX flow and formal consent form for capturing patient video in a clinical setting.
+*   **Clinical Validation Study Design:** A written plan outlining how SANA Sign *will* be tested in a formal clinical trial post-prototype.
+*   **Avatar Acceptance Testing:** Documented feedback sessions with deaf community members assessing the clarity of our 3D avatar animations.
+
+---
+
+## 5. The Contest Presentation Angle
 You pitch this not as a limited system, but as a **Modular Framework**. 
 *   "Today, we are demonstrating the core engine with 50 critical emergency room phrases."
 *   "Our architecture is designed to scale. As we collect more data, the classification engine swaps out for a T5-Transformer, and our avatar dictionary swaps out for a Generative motion model."
