@@ -141,11 +141,19 @@ graph TD
 | | Model generates coherent English sentences | Qualitative pass |
 | **Phase 5 (PSL)** | PSL dictionary scrape yields 200+ videos | ⏳ |
 | | Visual Encoder adapts to PSL keypoints without catastrophic forgetting | Loss continues to decrease |
+<<<<<<< HEAD
 | **Phase 6 (MVP)** | Patient+Doctor classification accuracy on 50 phrases | > 90% |
 | | Doctor+Patient Whisper transcription accuracy (English + Urdu) | > 85% |
 | | End-to-end translation latency (from sign/speech end to output) | < 2 seconds |
 | | Safety Framework / Fallback mechanism | Triggers correctly on low-confidence |
 | | Live two-way demo runs in real-time on webcam | ⏳ |
+=======
+| **Phase 6 (MVP)** | Patient+'Doctor classification accuracy on 50 phrases | > 90% |
+| | Doctor+'Patient Whisper transcription accuracy (English + Urdu) | > 85% |
+| | End-to-end translation latency (from sign/speech end to output) | < 2 seconds |
+| | Safety Framework / Fallback mechanism | Triggers correctly on low-confidence |
+| | Live two-way demo runs in real-time on webcam | o. |
+>>>>>>> f96f391 (Align SANA Sign with SIMPACT 2026 guidelines)
 
 ---
 
