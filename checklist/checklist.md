@@ -8,7 +8,7 @@ This file tracks all active checklist items for the A-PSL project. Each item lin
 
 | # | Item | Status | Priority | Link |
 |---|---|---|---|---|
-| 1 | Prove the Pipeline: Visual Encoder + mT5 on 100k YT-ASL | 🔴 Not Started | 🔥 Critical | [item_1.md](checklist/item_1.md) |
+| 1 | Prove the Pipeline: Visual Encoder + mT5 on 100k YT-ASL | 🟡 In Progress | 🔥 Critical | [item_1.md](checklist/item_1.md) |
 
 ---
 
