@@ -1,3 +1,17 @@
+# Item 1: Prove the Full Pipeline — ASL Foundation → SANA Sign Medical MVP
+
+> **Priority:** 🔥 Critical 
+> **Status:** 🟡 In Progress 
+> **Owner:** Khizer + Rehan 
+> **End Goal:** A working two-way Medical PSL prototype for SIMPACT 2026 (Patient→Doctor via sign recognition, Doctor→Patient via Voice→Avatar) 
+> **Immediate Target:** Prove the ASL foundation pipeline trains successfully on a T4 GPU before pivoting to PSL
+
+---
+
+## The Big Picture: How Everything Connects
+
+Our project has **three strategies** that build on top of each other like layers of a cake. Item 1 covers the foundation layer that makes everything else possible.
+
 ```mermaid
 graph TD
     subgraph DATA["dY" Phase 1: Data Pipeline"]
@@ -102,14 +116,17 @@ graph TD
 - [ ] **5.6** Extract MediaPipe keypoints from recorded clips
 - [ ] **5.7** LoRA fine-tune on custom medical PSL dataset
 
-### Phase 6: Contest MVP Assembly (Strategy 3)
-
+### Phase 6: Contest MVP Assembly (SANA Sign Strategy 3)
 - [ ] **6.1** Build the Patient+'Doctor pipeline: PSL sequence classification over 30-50 phrases using LSTM or lightweight Transformer
 - [ ] **6.2** Build the Doctor+'Patient pipeline: integrate OpenAI Whisper (voice+'text) + fuzzy phrase matching
 - [ ] **6.3** Create or source pre-animated avatar clips for the 50 medical phrases
 - [ ] **6.4** Build the demo UI: webcam input for Patient side, microphone input for Doctor side
-- [ ] **6.5** End-to-end integration test: live two-way demo on webcam
-- [ ] **6.6** Prepare the contest pitch: "Modular Framework" angle
+- [ ] **6.5** Implement the Safety Framework: add confidence thresholding logic to trigger "Human Interpreter Required" fallback
+- [ ] **6.6** Draft SIMPACT Deliverable: PSL Dataset Documentation (demographics, recording conditions)
+- [ ] **6.7** Draft SIMPACT Deliverable: Patient Video Capture Consent Form
+- [ ] **6.8** Draft SIMPACT Deliverable: Post-prototype Clinical Validation Study Design
+- [ ] **6.9** Conduct & Document Avatar Acceptance Testing with PSL/Deaf users
+- [ ] **6.10** End-to-end integration test: measure and document Accuracy and Latency metrics for live demo
 
 ---
 
@@ -126,6 +143,8 @@ graph TD
 | | Visual Encoder adapts to PSL keypoints without catastrophic forgetting | Loss continues to decrease |
 | **Phase 6 (MVP)** | Patient+'Doctor classification accuracy on 50 phrases | > 90% |
 | | Doctor+'Patient Whisper transcription accuracy (English + Urdu) | > 85% |
+| | End-to-end translation latency (from sign/speech end to output) | < 2 seconds |
+| | Safety Framework / Fallback mechanism | Triggers correctly on low-confidence |
 | | Live two-way demo runs in real-time on webcam | o. |
 
 ---
