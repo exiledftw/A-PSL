@@ -1,6 +1,6 @@
 # Checklist Tracker
 
-This file tracks all active checklist items for the A-PSL project. Each item links to a detailed breakdown in its own file.
+This file tracks all active checklist items for the SANA Sign module (SIMPACT 2026). Each item links to a detailed breakdown in its own file.
 
 ---
 
