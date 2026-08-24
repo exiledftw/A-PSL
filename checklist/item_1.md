@@ -72,31 +72,31 @@ graph TD
 ### Phase 1: Data Pipeline (YouTube-ASL)
 
 - [x] **1.1** Obtain the 10 direct `.zip` download URLs from the LINDAT file listing page
-- [/] **1.2** Create a public Kaggle dataset using "New Dataset +' Remote Files" ?" paste each zip URL so Kaggle pulls files from LINDAT directly
-- [ ] **1.3** Verify the Kaggle dataset mounts correctly at `/kaggle/input/<dataset-name>/`
-- [ ] **1.4** Download the `YT.translations.all.json` file directly from LINDAT
-- [ ] **1.5** Write a PyTorch Dataset class to parse the LINDAT translations JSON and dynamically load the corresponding MediaPipe keypoint files using the `clip_order` keys
-- [ ] **1.6** Verify the join ?" spot-check 50 random clips to confirm caption alignment
-- [ ] **1.7** Select exactly 3 LINDAT zip files (~117k clips) to serve as our complete prototype dataset (achieving the ~100k target)
-- [ ] **1.8** Inspect sample JSON structure ?" confirm field names and 208 landmarks per frame
+- [x] **1.2** Create a public Kaggle dataset using "New Dataset +' Remote Files" ?" paste each zip URL so Kaggle pulls files from LINDAT directly
+- [x] **1.3** Verify the Kaggle dataset mounts correctly at `/kaggle/input/<dataset-name>/`
+- [x] **1.4** Download the `YT.translations.all.json` file directly from LINDAT
+- [x] **1.5** Write a PyTorch Dataset class to parse the LINDAT translations JSON and dynamically load the corresponding MediaPipe keypoint files using the `clip_order` keys
+- [x] **1.6** Verify the join ?" spot-check 50 random clips to confirm caption alignment
+- [x] **1.7** Select exactly 3 LINDAT zip files (~117k clips) to serve as our complete prototype dataset (achieving the ~100k target)
+- [x] **1.8** Inspect sample JSON structure ?" confirm field names and 208 landmarks per frame
 
 ### Phase 2: Architecture Assembly
 
-- [ ] **2.1** Fork/Clone the `zeleznyt/T5_for_SLT` repository
-- [ ] **2.2** Read and understand the existing data loader, model architecture, and training loop
-- [ ] **2.3** Modify the decoder to use `google/mt5-small` (from HuggingFace) instead of standard T5 ?" this gives us English + Urdu output capability for the PSL pivot later
-- [ ] **2.4** Verify the Projection Layer dimensions match between Visual Encoder output and mT5 embedding input
-- [ ] **2.5** Inject LoRA adapter config (using `peft` library) into mT5 decoder attention blocks ?" keep disabled for Phase 3
-- [ ] **2.6** Run a single forward pass with a dummy batch to confirm tensor shapes and VRAM usage
+- [x] **2.1** Fork/Clone the `zeleznyt/T5_for_SLT` repository
+- [x] **2.2** Read and understand the existing data loader, model architecture, and training loop
+- [x] **2.3** Modify the decoder to use `google/mt5-small` (from HuggingFace) instead of standard T5 ?" this gives us English + Urdu output capability for the PSL pivot later
+- [x] **2.4** Verify the Projection Layer dimensions match between Visual Encoder output and mT5 embedding input
+- [x] **2.5** Inject LoRA adapter config (using `peft` library) into mT5 decoder attention blocks ?" keep disabled for Phase 3
+- [x] **2.6** Run a single forward pass with a dummy batch to confirm tensor shapes and VRAM usage
 
 ### Phase 3: ASL Pre-training (The Proof)
 
-- [ ] **3.1** Upload training script to a Kaggle notebook with T4 GPU enabled
-- [ ] **3.2** Mount the 100k dataset and the captions TSV
-- [ ] **3.3** Run pre-training (Epoch 1): freeze mT5, train Visual Encoder sequentially on Zip 1 -> Checkpoint -> Zip 2 -> Checkpoint -> Zip 3
-- [ ] **3.4** Monitor: Does loss decrease over 5 epochs? +' If yes, model is learning
-- [ ] **3.5** Monitor: Does VRAM stay under 15GB? +' If no, reduce batch size or drop face landmarks
-- [ ] **3.6** Save checkpoint to Google Drive / Kaggle output
+- [x] **3.1** Upload training script to a Kaggle notebook with T4 GPU enabled
+- [x] **3.2** Mount the 100k dataset and the captions TSV
+- [/] **3.3** Run pre-training (Epoch 1): freeze mT5, train Visual Encoder sequentially on Zip 1 -> Checkpoint -> Zip 2 -> Checkpoint -> Zip 3
+- [x] **3.4** Monitor: Does loss decrease over 5 epochs? +' If yes, model is learning
+- [x] **3.5** Monitor: Does VRAM stay under 15GB? +' If no, reduce batch size or drop face landmarks
+- [x] **3.6** Save checkpoint to Google Drive / Kaggle output
 
 ### Phase 4: How2Sign Fine-tune
 
