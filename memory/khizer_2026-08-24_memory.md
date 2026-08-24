@@ -13,8 +13,18 @@ Working on the A-PSL Phase 1-3 pipeline (YouTube-ASL foundation) for the SIMPACT
 6. **Inference Validation:** Confirmed the frozen mT5 model successfully outputs multilingual text (which looks like gibberish prior to full training, as expected).
 7. **Per-Epoch Checkpointing:** Modified the training loop to save permanent, uniquely-named checkpoint files (e.g., `epoch_1.pt`) instead of just overwriting a single `latest.pt` file, allowing easy download/export and safe resumption after disconnects.
 8. **Updated Checklist:** Marked Phase 1 and 2 items as completed, and Phase 3 as mostly completed/in-progress in `checklist/item_1.md`.
+9. **Finalized Kaggle Multi-Zip Strategy:** Designed the 15-epoch manual-swap training strategy to bypass Kaggle's 100GB limit while preserving PyTorch learning rate math.
 
-## Notes for Next Session
-- **Immediate Next Step:** Switch `DATA_PATH` to the full 34GB Kaggle zip (`/kaggle/input/datasets/kkmalik/yt-asl/content`), set `MAX_CLIPS: None`, and begin the full ASL Pre-training run (Phase 3).
+## Notes for Next Session / Other Agents
 - **Deployment Note:** The `.pt` weights generated here will eventually be exported to **ONNX** format for the high-speed, low-latency live demo requirement of SIMPACT 2026 (llama.cpp/GGUF is incompatible with our custom spatial-temporal encoder).
-- **Checkpoint Resumption:** If Kaggle disconnects, upload the latest `epoch_X.pt` file as a Kaggle dataset, point `RESUME_CHECKPOINT_PATH` to it, and re-run. The script will dynamically pick up exactly where it left off.
+- **CRITICAL: The 3-Zip / 15-Epoch Training Strategy:**
+  Because Kaggle limits inputs to 100GB, we cannot mount all three 34GB LINDAT zips at once. The user must train using a manual swap cycle (Zip 1 -> Zip 2 -> Zip 3 -> Zip 1...) to achieve 5 true epochs over the whole dataset.
+  - **The Math Hack:** We set `CONFIG["MAX_EPOCHS"] = 15`. This tricks PyTorch into stretching the learning rate decay curve over 15 runs of a single zip (which mathematically equals 5 runs of 3 zips).
+  - **The Code Hack:** We added a `break` statement at the very end of the `for epoch in epoch_bar:` loop in Cell 9 (right after `save_checkpoint(epoch_path...)`). This forces the script to gracefully stop after exactly 1 zip pass, rather than spinning 15 times on the same zip.
+  - **The Workflow:** 
+    1. Attach Zip 1. Set `MAX_EPOCHS=15`, `RESUME_CHECKPOINT_PATH=None`. Run. 
+    2. Script finishes, saves `epoch_1.pt`, hits `break`, and stops.
+    3. User downloads `epoch_1.pt`, removes Zip 1 from Kaggle, attaches Zip 2.
+    4. User uploads `epoch_1.pt` as a Kaggle dataset, points `RESUME_CHECKPOINT_PATH` to it. Run.
+    5. Script resumes at step 2, adjusts the learning rate curve slightly if the new zip has a different length, finishes Zip 2, saves `epoch_2.pt`, hits `break`, and stops.
+  - *If another agent picks this up:* Do not touch `MAX_EPOCHS` (leave it at 15), do not change the `break` statement, and do not manually change the `LEARNING_RATE`. The PyTorch scheduler handles the math automatically via `scheduler.load_state_dict`.
