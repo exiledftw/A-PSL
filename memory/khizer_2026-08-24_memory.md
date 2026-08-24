@@ -14,6 +14,7 @@ Working on the A-PSL Phase 1-3 pipeline (YouTube-ASL foundation) for the SIMPACT
 7. **Per-Epoch Checkpointing:** Modified the training loop to save permanent, uniquely-named checkpoint files (e.g., `epoch_1.pt`) instead of just overwriting a single `latest.pt` file, allowing easy download/export and safe resumption after disconnects.
 8. **Updated Checklist:** Marked Phase 1 and 2 items as completed, and Phase 3 as mostly completed/in-progress in `checklist/item_1.md`.
 9. **Finalized Kaggle Multi-Zip Strategy:** Designed the 15-epoch manual-swap training strategy to bypass Kaggle's 100GB limit while preserving PyTorch learning rate math.
+10. **Kaggle UI Troubleshooting:** Helped the user troubleshoot a hung "Draft Session Adding data" status. Explained that Kaggle downloads remote datasets (like the 34GB LINDAT zips) asynchronously in the background, and the notebook will wait indefinitely until the dataset page shows "Ready" before mounting. Advised doing a session restart via the refresh icon if the dataset is ready but the VM is glitched.
 
 ## Notes for Next Session / Other Agents
 - **Deployment Note:** The `.pt` weights generated here will eventually be exported to **ONNX** format for the high-speed, low-latency live demo requirement of SIMPACT 2026 (llama.cpp/GGUF is incompatible with our custom spatial-temporal encoder).
