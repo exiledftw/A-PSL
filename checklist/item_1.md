@@ -34,7 +34,7 @@ graph TD
         C4 --> C1
     end
 
-    subgraph FINETUNE["Phase 4: How2Sign Fine-tune"]
+    subgraph FINETUNE["Phase 4: How2Sign Fine-tune (REHAN - PARALLEL)"]
         C3 --> D1["Enable LoRA adapters\non mT5 decoder"]
         D1 --> D2["Fine-tune on\nHow2Sign 35k clips"]
         D2 --> D3["Evaluate BLEU-4\non test set"]
@@ -98,11 +98,11 @@ graph TD
 - [x] **3.5** Monitor: Does VRAM stay under 15GB? + If no, reduce batch size or drop face landmarks
 - [x] **3.6** Save checkpoint to Google Drive / Kaggle output / Weights & Biases (Artifacts)
 
-### Phase 4: How2Sign Fine-tune
+### Phase 4: How2Sign Fine-tune (Parallel Track by Rehan)
 
-- [ ] **4.1** Download How2Sign pre-extracted keypoints (Kaggle/HuggingFace)
-- [ ] **4.2** Enable LoRA adapters on mT5 decoder, unfreeze Visual Encoder
-- [ ] **4.3** Fine-tune on How2Sign 35k clips (with gloss annotations)
+- [x] **4.1** Download How2Sign pre-extracted keypoints (Kaggle/HuggingFace) - *Verified `PSewmuthu/How2Sign_Holistic` with 208-dim parity.*
+- [x] **4.2** Setup How2Sign dataset processing and realigned English text labels (`how2sign_realigned_train.csv`)
+- [/] **4.3** Fine-tune on How2Sign 35k clips (IN PROGRESS - Epoch 1 completed with Val Loss `4.2730`)
 - [ ] **4.4** Evaluate: compute BLEU-4 on How2Sign test set
 - [ ] **4.5** Qualitative check: manually read 20 model outputs – do they make sense?
 
