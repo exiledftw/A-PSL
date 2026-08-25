@@ -6,9 +6,10 @@
 - **Automated Checkpoint Resumption Script**: Created a script specifically for downloading checkpoints dynamically from Weights & Biases Artifacts to completely bypass local upload/download times for Kaggle.
 - **W&B Secret Authentication**: Implemented `wandb.login(key="...")` directly into the background script so W&B doesn't freeze the headless container asking for a prompt.
 - **Kaggle Background Execution Setup**: We finally transitioned to a "Save & Run All" background run strategy to prevent Kaggle frontend UI desyncs and to enable completely hands-free 12-hour training runs. 
+- **Cross-Team Synchronization (Rehan's Progress)**: Read Rehan's log for today. We have successfully split into a dual-track strategy: while we handle the 117k YouTube-ASL pre-training pipeline, Rehan is actively executing Phase 4 (How2Sign fine-tuning on studio-quality clips). Rehan's Epoch 1 validation loss just hit an incredible `4.2730`!
 
 ## Important Context for Next Agent
-- **Data Status**: We are currently running **Zip 2** in a background "Save & Run All" session. 
+- **Data Status**: We are currently running **Zip 2** (YouTube-ASL) in a background "Save & Run All" session. 
 - **Kaggle Pitfalls Avoided**:
   - `num_workers = 0` MUST remain set to 0. Yesterday we confirmed a massive zipfile deadlock crash happens at `num_workers > 0`.
   - The W&B auto-upload script is now staged at the very bottom of the notebook. When the Kaggle background run finishes, it will automatically package the next checkpoint and upload it to W&B.
@@ -17,3 +18,4 @@
 ## Next Steps
 - Wait for the Zip 2 background run to finish and verify that `epoch_2.pt` (or equivalent) appears in the W&B Artifacts dashboard.
 - Prepare to transition to Zip 3 using the exact same W&B resumption logic.
+- Align with Rehan's `How2SignTranslator` architecture configurations to ensure our YT-ASL base model remains 100% perfectly compatible with his downstream LoRA adapters.
