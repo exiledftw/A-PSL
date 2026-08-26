@@ -93,7 +93,7 @@ graph TD
 
 - [x] **3.1** Upload training script to a Kaggle notebook with T4 GPU enabled
 - [x] **3.2** Mount the 100k dataset and the captions TSV
-- [/] **3.3** Run pre-training (Epoch 1): freeze mT5, train Visual Encoder sequentially on Zip 1 -> Checkpoint -> Zip 2 (IN PROGRESS) -> Checkpoint -> Zip 3
+- [/] **3.3** Run pre-training (Epoch 1): freeze mT5, train Visual Encoder sequentially on Zip 1 -> Checkpoint -> Zip 2 -> Checkpoint -> Zip 3 (IN PROGRESS - Completing Epoch 1)
 - [x] **3.4** Monitor: Does loss decrease over 5 epochs? + If yes, model is learning
 - [x] **3.5** Monitor: Does VRAM stay under 15GB? + If no, reduce batch size or drop face landmarks
 - [x] **3.6** Save checkpoint to Google Drive / Kaggle output / Weights & Biases (Artifacts)
