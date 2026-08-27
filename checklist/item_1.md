@@ -44,7 +44,7 @@ graph TD
         D3 --> E1["Scrape psl.org.pk\nPSL dictionary videos"]
         E1 --> E2["Extract MediaPipe keypoints\nfrom PSL videos"]
         E2 --> E3["Domain-adapt Visual Encoder\nfrom ASL to PSL"]
-        E3 --> E4["Record 30-50 custom\nmedical PSL phrases"]
+        E3 --> E4["Acquire diverse PSL\ndataset from Partner Org"]
         E4 --> E5["LoRA fine-tune on\nmedical PSL dataset"]
     end
 
@@ -111,9 +111,9 @@ graph TD
 - [ ] **5.1** Write a scraper for `psl.org.pk` to download PSL dictionary videos (prioritize medical category)
 - [ ] **5.2** Run MediaPipe extraction on scraped PSL videos + save as JSON keypoints
 - [ ] **5.3** Domain-adapt the Visual Encoder on the PSL dictionary dataset (continue training)
-- [ ] **5.4** Define 30-50 critical medical PSL phrases for the MVP
-- [ ] **5.5** Record 2-3 people signing each phrase (10-15 variations each) + ~750 clips
-- [ ] **5.6** Extract MediaPipe keypoints from recorded clips
+- [ ] **5.4** Finalize partnership with organization to acquire a medium-sized, diverse PSL dataset
+- [ ] **5.5** Process organizational dataset and extract MediaPipe keypoints
+- [ ] **5.6** Define the subset of medical phrases required for the MVP
 - [ ] **5.7** LoRA fine-tune on custom medical PSL dataset
 
 ### Phase 6: Contest MVP Assembly (SANA Sign Strategy 3)
@@ -139,7 +139,7 @@ graph TD
 | | VRAM usage stays under 15GB on T4 | ✅ |
 | **Phase 4 (How2Sign)** | BLEU-4 on How2Sign test set | > 5.0 (prototype baseline) |
 | | Model generates coherent English sentences | Qualitative pass |
-| **Phase 5 (PSL)** | PSL dictionary scrape yields 200+ sign videos | ⏳ |
+| **Phase 5 (PSL)** | PSL dictionary scrape yields 200+ videos | ⏳ |
 | | Visual Encoder adapts to PSL keypoints without catastrophic forgetting | Loss continues to decrease |
 | **Phase 6 (MVP)** | Patient+Doctor classification accuracy on 50 phrases | > 90% |
 | | Doctor+Patient Whisper transcription accuracy (English + Urdu) | > 85% |
