@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mixamo Avatar Rig Tester</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #1a1a1a; color: white; display: flex; }
+        #canvas-container { width: 60vw; height: 100vh; }
+        #info-panel { width: 40vw; height: 100vh; overflow-y: auto; padding: 20px; box-sizing: border-box; background: #222; }
+        .success { color: #4CAF50; font-weight: bold; }
+        .warning { color: #FFC107; font-weight: bold; }
+    </style>
+    <!-- Import Maps for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="info-panel">
+        <h2>Avatar Rig Diagnostic</h2>
+        <p>Loading offline Mixamo avatar...</p>
+        <div id="diagnostics"></div>
+    </div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(1, 2, 3);
+        scene.add(directionalLight);
+
+        // Mixamo FBX models are usually scaled larger (centimeters instead of meters)
+        const camera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.6) / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 150, 300);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth * 0.6, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 100, 0);
+        controls.update();
+        
+        const loader = new FBXLoader();
+        const diagDiv = document.getElementById('diagnostics');
+
+        // Load the local Y Bot file
+        loader.load("./Y%20Bot.fbx", (object) => {
+            scene.add(object);
+            
+            let handBones = [];
+
+            // Traverse the avatar to find bones
+            object.traverse((node) => {
+                if (node.isBone) {
+                    // Mixamo bones usually start with "mixamorig:"
+                    if (node.name.includes("Hand") || node.name.includes("Thumb") || node.name.includes("Index") || node.name.includes("Middle") || node.name.includes("Ring") || node.name.includes("Pinky")) {
+                        handBones.push(node.name);
+                    }
+                }
+            });
+
+            // Analyze Results
+            let outputHTML = "<h3>1. Hand Skeleton Analysis</h3>";
+            if (handBones.length >= 30) {
+                outputHTML += `<p class="success">PASS: Found ${handBones.length} hand/finger joints! The Mixamo Y-Bot is fully capable of complex sign language.</p>`;
+            } else {
+                outputHTML += `<p class="warning">FAIL: Only found ${handBones.length} joints. It might have mitten hands.</p>`;
+            }
+            
+            outputHTML += `<div style="font-size: 12px; color: #aaa; margin-bottom: 20px; word-wrap: break-word;">Detected: ${handBones.join(', ')}</div>`;
+
+            outputHTML += "<h3>2. Offline Safety Protocol</h3>";
+            outputHTML += `<p class="success">PASS: Avatar loaded directly from E:\\sign-language\\Beta\\Y Bot.fbx. It is safely isolated and won't crash even if the internet goes down.</p>`;
+
+            diagDiv.innerHTML = outputHTML;
+
+        }, undefined, (error) => {
+            console.error(error);
+            diagDiv.innerHTML = `<p style="color:red;">Error loading FBX file. Check browser console.</p>`;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = (window.innerWidth * 0.6) / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth * 0.6, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PSL Avatar Player</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #canvas-container { width: 80vw; height: 70vh; border: 2px solid #333; border-radius: 8px; margin-bottom: 20px; }
+        .controls { display: flex; gap: 15px; }
+        button { padding: 15px 30px; font-size: 16px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; transition: background 0.2s; }
+        button:hover { background-color: #45a049; }
+        #status { margin-bottom: 10px; font-size: 18px; color: #ffeb3b; }
+    </style>
+    <!-- Import Maps for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Doctor-to-Patient Avatar (Phase 6 MVP)</h2>
+    <div id="status">Loading Base Avatar...</div>
+    <div id="canvas-container"></div>
+    
+    <div class="controls">
+        <button id="btn-play" disabled>Play "Paani" (Water) Sign</button>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Core Setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x222222);
+        
+        // Lighting
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+        hemiLight.position.set(0, 200, 0);
+        scene.add(hemiLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(0, 200, 100);
+        scene.add(dirLight);
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 2000);
+        camera.position.set(0, 150, 400);
+        
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 100, 0);
+        controls.update();
+        
+        const clock = new THREE.Clock();
+        let mixer; // Animation Mixer
+        let action; // The specific animation action
+
+        const loader = new FBXLoader();
+        const statusDiv = document.getElementById('status');
+        const playBtn = document.getElementById('btn-play');
+
+        // 1. Load the Base Y-Bot Body
+        loader.load("./Y%20Bot.fbx", (avatar) => {
+            scene.add(avatar);
+            
+            // Initialize the animation mixer on the avatar body
+            mixer = new THREE.AnimationMixer(avatar);
+            
+            statusDiv.innerText = "Base Avatar Loaded. Loading Animation...";
+
+            // 2. Load the Animation File (No Skin)
+            loader.load("./23_paani.fbx", (animObject) => {
+                
+                // Extract the animation clip from the downloaded FBX
+                const animationClip = animObject.animations[0];
+                
+                // Assign the animation to the mixer
+                action = mixer.clipAction(animationClip);
+                
+                // Keep the avatar still until we click play
+                action.setLoop(THREE.LoopOnce);
+                action.clampWhenFinished = true; // Stay in the final position
+                
+                statusDiv.innerText = "Ready! (Simulating Python Output: ['23_paani.bvh'])";
+                statusDiv.style.color = "#4CAF50";
+                
+                // Enable the Play Button
+                playBtn.disabled = false;
+                
+            }, undefined, (e) => console.error("Anim Error:", e));
+
+        }, undefined, (e) => console.error("Avatar Error:", e));
+
+        // Play Button Event Listener
+        playBtn.addEventListener('click', () => {
+            if (action) {
+                action.reset();
+                action.play();
+                statusDiv.innerText = "Avatar Executing: 23_paani.fbx";
+            }
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            if (mixer) {
+                mixer.update(clock.getDelta());
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>
