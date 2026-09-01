@@ -119,76 +119,69 @@ class SANA_PSL_Translator(nn.Module):
         )
         return outputs.sequences, outputs.sequences_scores
 
-def ensure_model_files():
-    import urllib.request
-    import os
-    if not os.path.exists("hand_landmarker.task"):
-        print("Downloading hand_landmarker.task...")
-        urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", "hand_landmarker.task")
-    if not os.path.exists("pose_landmarker_lite.task"):
-        print("Downloading pose_landmarker_lite.task...")
-        urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", "pose_landmarker_lite.task")
-
 class LandmarkExtractor:
-    def __init__(self, alpha=0.75):
-        ensure_model_files()
-        hand_opts = mp_vision.HandLandmarkerOptions(
-            base_options=mp_python.BaseOptions(model_asset_path="hand_landmarker.task"),
-            running_mode=mp_vision.RunningMode.IMAGE,
-            num_hands=2,
-            min_hand_detection_confidence=0.35,
-            min_hand_presence_confidence=0.35
+    def __init__(self, alpha=0.75, mirror_fix=True):
+        self.mp_holistic = mp.solutions.holistic
+        self.holistic = self.mp_holistic.Holistic(
+            static_image_mode=False,
+            model_complexity=1,
+            smooth_landmarks=True,
+            enable_segmentation=False,
+            refine_face_landmarks=False,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
         )
-        self.hand_detector = mp_vision.HandLandmarker.create_from_options(hand_opts)
         self.alpha = alpha
-        self.prev_hands = None
+        self.mirror_fix = mirror_fix
+        self.prev_landmarks = None
 
     def extract_from_frame(self, frame_bgr):
-        h, w, _ = frame_bgr.shape
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
-
-        hand_result = self.hand_detector.detect(mp_image)
-
+        results = self.holistic.process(frame_rgb)
+        
+        # 1. Pose Landmarks (33 points -> 66 floats)
+        pose_coords = [0.0] * 66
+        if results.pose_landmarks:
+            for i, lm in enumerate(results.pose_landmarks.landmark):
+                pose_coords[i*2] = float(lm.x)
+                pose_coords[i*2 + 1] = float(lm.y)
+                
+        # 2. Left Hand Landmarks (21 points -> 42 floats)
         lh_coords = [0.0] * 42
-        rh_coords = [0.0] * 42
         has_hands = False
-
-        if hand_result.hand_landmarks:
+        if results.left_hand_landmarks:
             has_hands = True
-            for idx, hand_lms in enumerate(hand_result.hand_landmarks):
-                handedness = "Right"
-                if hand_result.handedness and idx < len(hand_result.handedness):
-                    handedness = hand_result.handedness[idx][0].category_name
-
-                coords_flat = []
-                for lm in hand_lms:
-                    coords_flat.extend([lm.x, lm.y])
-
-                # Fix Selfie Mirroring Inversion:
-                # MediaPipe 'Left' on mirrored screen = User's physical RIGHT hand
-                # MediaPipe 'Right' on mirrored screen = User's physical LEFT hand
-                if handedness == "Left":
-                    rh_coords = coords_flat[:42]
-                else:
-                    lh_coords = coords_flat[:42]
-
-        raw_hands = np.array(lh_coords + rh_coords, dtype=np.float32)
-
-        # Coordinate smoothing
-        if self.prev_hands is None:
-            self.prev_hands = raw_hands
+            for i, lm in enumerate(results.left_hand_landmarks.landmark):
+                lh_coords[i*2] = float(lm.x)
+                lh_coords[i*2 + 1] = float(lm.y)
+                
+        # 3. Right Hand Landmarks (21 points -> 42 floats)
+        rh_coords = [0.0] * 42
+        if results.right_hand_landmarks:
+            has_hands = True
+            for i, lm in enumerate(results.right_hand_landmarks.landmark):
+                rh_coords[i*2] = float(lm.x)
+                rh_coords[i*2 + 1] = float(lm.y)
+                
+        # Handle Selfie Mirror Inversion
+        if self.mirror_fix:
+            lh_coords, rh_coords = rh_coords, lh_coords
+            
+        # 4. Face Landmarks (58 floats - neutral zeros)
+        face_coords = [0.0] * 58
+        
+        current_frame_208 = np.array(pose_coords + lh_coords + rh_coords + face_coords, dtype=np.float32)
+        
+        # Coordinate smoothing across consecutive frames
+        if self.prev_landmarks is None:
+            self.prev_landmarks = current_frame_208
         else:
-            active_mask = (raw_hands != 0.0).astype(np.float32)
-            self.prev_hands = active_mask * (self.alpha * raw_hands + (1 - self.alpha) * self.prev_hands) + (1 - active_mask) * raw_hands
-            raw_hands = self.prev_hands
-
-        # 66 Pose (0) + 42 LH + 42 RH + 58 Face (0) = 208 Floats
-        pose_66 = np.zeros(66, dtype=np.float32)
-        face_58 = np.zeros(58, dtype=np.float32)
-        adapted_208 = np.concatenate([pose_66, raw_hands[:42], raw_hands[42:84], face_58])
-
-        return adapted_208, has_hands, hand_result
+            active_mask = (current_frame_208 != 0.0).astype(np.float32)
+            smoothed = active_mask * (self.alpha * current_frame_208 + (1 - self.alpha) * self.prev_landmarks) + (1 - active_mask) * current_frame_208
+            self.prev_landmarks = smoothed
+            current_frame_208 = smoothed
+            
+        return current_frame_208, has_hands, results
 
 # ==============================================================================
 # 4. BILINGUAL HUD OVERLAY WITH TOP-3 PREDICTIONS
