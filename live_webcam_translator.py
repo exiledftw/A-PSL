@@ -216,75 +216,11 @@ class LandmarkExtractor:
 # ==============================================================================
 
 # Reverse translation lookup for instant English subtitles
-URDU_TO_EN = {
-    "السلام علیکم": "Hello / Peace be upon you",
-    "شکریہ": "Thank you",
-    "خوش آمدید": "Welcome",
-    "معذرت": "Sorry",
-    "معاف کیجیئے گا": "Excuse me",
-    "براہ کرم": "Please",
-    "آپ": "You",
-    "میں": "I / Me",
-    "ہم": "We",
-    "بایاں ہاتھ": "Left Hand",
-    "دایاں ہاتھ": "Right Hand",
-    "آنکھ": "Eye",
-    "کان": "Ear",
-    "ناک": "Nose",
-    "سر": "Head",
-    "ٹانگ": "Leg",
-    "پاؤں": "Foot",
-    "پیٹ": "Stomach",
-    "منہ": "Mouth",
-    "دانت": "Teeth",
-    "مجھے بھوک لگی ہے": "I am hungry",
-    "پانی": "Water",
-    "کھانا": "Food",
-    "دودھ": "Milk",
-    "چائے": "Tea",
-    "ٹوتھ برش": "Toothbrush",
-    "پنکھا": "Fan",
-    "روشنی": "Light",
-    "دروازہ": "Door",
-    "کتاب": "Book",
-    "قلم": "Pen",
-    "گھڑی": "Clock",
-    "فون": "Phone",
-    "ہرن": "Deer",
-    "بلی": "Cat",
-    "کتا": "Dog",
-    "پرندہ": "Bird",
-    "مچھلی": "Fish",
-    "گائے": "Cow",
-    "گھوڑا": "Horse",
-    "درخت": "Tree",
-    "سورج": "Sun",
-    "چاند": "Moon",
-    "پولیس کی گاڑی": "Police Car",
-    "ایمبولینس": "Ambulance",
-    "ہوائی جہاز": "Airplane",
-    "گاڑی": "Car",
-    "بس": "Bus",
-    "ہسپتال": "Hospital",
-    "گھر": "Home",
-    "سکول": "School",
-    "ڈاکٹر": "Doctor",
-    "درد": "Pain",
-    "بخار": "Fever",
-    "دوا": "Medicine",
-    "مدد": "Help",
-    "رکیں": "Stop",
-    "جی ہاں": "Yes",
-    "نہیں": "No",
-    "اچھا": "Good",
-    "خراب": "Bad",
-    "گرم": "Hot",
-    "ٹھنڈا": "Cold",
-    "استرا": "Razor / Shave",
-    "گنجا": "Bald Head",
-    "ریچھ": "Bear",
-    "بالکل": "Absolutely / OK",
-    "داڑھی": "Beard"
+EN_TO_URDU = {
+    "Hello I need to see a doctor": "ہیلو، مجھے ڈاکٹر سے ملنے کی ضرورت ہے۔",
+    "I have a severe headache": "مجھے شدید سر درد ہے۔",
+    "Where is the pain": "درد کہاں ہے؟",
+    "Are you having trouble breathing": "کیا آپ کو سانس لینے میں تکلیف ہو رہی ہے؟"
 }
 
 import arabic_reshaper
@@ -349,23 +285,23 @@ def draw_hud(frame, state, buffer_len, target_frames, top_preds, latency_ms, fps
     draw.text((35, h - card_h + 8), "(TOGGLE MODE: Press SPACE to start recording. Press SPACE again to translate!  |  'Q': Quit)", font=font_meta, fill=(130, 160, 190))
     
     if len(top_preds) > 0:
-        raw_urdu = top_preds[0]
-        best_en = URDU_TO_EN.get(raw_urdu, raw_urdu)
-        formatted_urdu = format_urdu_text(raw_urdu)
+        raw_eng = top_preds[0]
+        best_urdu = EN_TO_URDU.get(raw_eng, raw_eng)
+        formatted_urdu = format_urdu_text(best_urdu)
         
-        draw.text((35, h - card_h + 28), f"Urdu: {formatted_urdu}", font=font_main, fill=(0, 245, 255))
-        draw.text((35, h - card_h + 68), f"English: \"{best_en}\"", font=font_sub, fill=(230, 240, 255))
+        draw.text((35, h - card_h + 28), f"English: \"{raw_eng}\"", font=font_main, fill=(230, 240, 255))
+        draw.text((35, h - card_h + 68), f"Urdu: {formatted_urdu}", font=font_sub, fill=(0, 245, 255))
         
         if len(top_preds) > 1:
             candidates_list = []
             for p in top_preds[1:3]:
-                candidates_list.append(f"{format_urdu_text(p)} ({URDU_TO_EN.get(p, p)})")
+                candidates_list.append(f"\"{p}\" ({format_urdu_text(EN_TO_URDU.get(p, p))})")
             candidates_str = " | ".join(candidates_list)
             draw.text((35, h - card_h + 96), f"Other Candidates: {candidates_str}", font=font_meta, fill=(170, 200, 180))
     else:
-        waiting_urdu = format_urdu_text("اشارہ کریں...")
-        draw.text((35, h - card_h + 35), f"Urdu: {waiting_urdu}", font=font_main, fill=(150, 170, 190))
-        draw.text((35, h - card_h + 75), "Waiting for gesture...", font=font_sub, fill=(150, 170, 190))
+        waiting_eng = "Waiting for gesture..."
+        draw.text((35, h - card_h + 35), f"English: {waiting_eng}", font=font_main, fill=(150, 170, 190))
+        draw.text((35, h - card_h + 75), "Urdu: اشارے کا انتظار ہے...", font=font_sub, fill=(150, 170, 190))
     
     return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
@@ -542,11 +478,11 @@ def main():
                 for d in decoded:
                     if d and d not in unique_preds:
                         unique_preds.append(d)
-                top_predictions = unique_preds if unique_preds else ["اشارہ کریں..."]
+                top_predictions = unique_preds if unique_preds else ["Waiting for gesture..."]
 
             primary = top_predictions[0]
-            en_sub = URDU_TO_EN.get(primary, primary)
-            print(f"⚡ [TRANSLATION ({last_latency:.0f}ms)]: \"{primary}\" ({en_sub})")
+            ur_sub = EN_TO_URDU.get(primary, primary)
+            print(f"  [TRANSLATION ({last_latency:.0f}ms)]: \"{primary}\" ({ur_sub})")
             
             gesture_buffer.clear()
             state = "IDLE"
