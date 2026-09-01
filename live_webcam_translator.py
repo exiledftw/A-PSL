@@ -478,7 +478,6 @@ def main():
 
             
             
-            mask = np.zeros((1, 100), dtype=np.float32)
             
 
             input_tensor = torch.tensor(padded, dtype=torch.float32, device=device)
