@@ -28,6 +28,14 @@ from transformers.modeling_outputs import BaseModelOutput
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import mediapipe as mp
+try:
+    import mediapipe.python.solutions.holistic as mp_holistic
+except (ImportError, AttributeError):
+    try:
+        from mediapipe.python.solutions import holistic as mp_holistic
+    except ImportError:
+        mp_holistic = mp.solutions.holistic
+
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 
@@ -121,7 +129,7 @@ class SANA_PSL_Translator(nn.Module):
 
 class LandmarkExtractor:
     def __init__(self, alpha=0.75, mirror_fix=True):
-        self.mp_holistic = mp.solutions.holistic
+        self.mp_holistic = mp_holistic
         self.holistic = self.mp_holistic.Holistic(
             static_image_mode=False,
             model_complexity=1,
