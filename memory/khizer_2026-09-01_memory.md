@@ -17,3 +17,5 @@
 - Open `keypoints.ipynb` in Google Colab.
 - Run all cells to process the `Test Data/{label}/[videos]` directory.
 - Download or use `SANA_PSL_Keypoints_Dataset.zip` for Few-Shot fine-tuning on the How2Sign pre-trained model.
+## 4. Fixes
+- Fixed a MediaPipe import error on Colab ('AttributeError: module mediapipe has no attribute solutions') by pinning the installation to mediapipe==0.10.14 in the uild_keypoints_nb.py script. Regenerated and pushed the updated keypoints.ipynb.
