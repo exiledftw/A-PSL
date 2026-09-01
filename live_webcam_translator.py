@@ -217,10 +217,10 @@ class LandmarkExtractor:
 
 # Reverse translation lookup for instant English subtitles
 EN_TO_URDU = {
-    "Hello I need to see a doctor": "ہیلو، مجھے ڈاکٹر سے ملنے کی ضرورت ہے۔",
-    "I have a severe headache": "مجھے شدید سر درد ہے۔",
-    "Where is the pain": "درد کہاں ہے؟",
-    "Are you having trouble breathing": "کیا آپ کو سانس لینے میں تکلیف ہو رہی ہے؟"
+    "Assalam o alaikum": "السلام علیکم",
+    "is blood pressure high or low": "کیا بلڈ پریشر ہائی ہے یا لو؟",
+    "Test are cheap here": "یہاں ٹیسٹ سستے ہیں",
+    "There has been an accident": "یہاں ایک ایکسیڈنٹ ہوا ہے"
 }
 
 import arabic_reshaper
@@ -285,17 +285,18 @@ def draw_hud(frame, state, buffer_len, target_frames, top_preds, latency_ms, fps
     draw.text((35, h - card_h + 8), "(AUTO MODE: Raise hands to sign. Drop hands to translate! | 'Q': Quit)", font=font_meta, fill=(130, 160, 190))
     
     if len(top_preds) > 0:
-        raw_eng = top_preds[0]
+        raw_eng, conf = top_preds[0] if isinstance(top_preds[0], tuple) else (top_preds[0], 0.0)
         best_urdu = EN_TO_URDU.get(raw_eng, raw_eng)
         formatted_urdu = format_urdu_text(best_urdu)
         
-        draw.text((35, h - card_h + 28), f"English: \"{raw_eng}\"", font=font_main, fill=(230, 240, 255))
+        draw.text((35, h - card_h + 28), f"English ({conf:.1f}%): \"{raw_eng}\"", font=font_main, fill=(230, 240, 255))
         draw.text((35, h - card_h + 68), f"Urdu: {formatted_urdu}", font=font_sub, fill=(0, 245, 255))
         
         if len(top_preds) > 1:
             candidates_list = []
-            for p in top_preds[1:3]:
-                candidates_list.append(f"\"{p}\" ({format_urdu_text(EN_TO_URDU.get(p, p))})")
+            for p_tuple in top_preds[1:3]:
+                p_text, p_conf = p_tuple if isinstance(p_tuple, tuple) else (p_tuple, 0.0)
+                candidates_list.append(f"\"{p_text}\" ({p_conf:.1f}%)")
             candidates_str = " | ".join(candidates_list)
             draw.text((35, h - card_h + 96), f"Other Candidates: {candidates_str}", font=font_meta, fill=(170, 200, 180))
     else:
@@ -496,9 +497,9 @@ def main():
                         unique_preds.append(d)
                 top_predictions = unique_preds if unique_preds else ["Waiting for gesture..."]
 
-            primary = top_predictions[0]
-            ur_sub = EN_TO_URDU.get(primary, primary)
-            print(f"  [TRANSLATION ({last_latency:.0f}ms)]: \"{primary}\" ({ur_sub})")
+            primary_text, primary_conf = top_predictions[0]
+            ur_sub = EN_TO_URDU.get(primary_text, primary_text)
+            print(f"  [TRANSLATION ({last_latency:.0f}ms) | CONFIDENCE: {primary_conf:.1f}%]: \"{primary_text}\" ({ur_sub})")
             
             gesture_buffer.clear()
             state = "IDLE"
