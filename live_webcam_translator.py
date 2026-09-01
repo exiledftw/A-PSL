@@ -28,13 +28,6 @@ from transformers.modeling_outputs import BaseModelOutput
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import mediapipe as mp
-try:
-    import mediapipe.python.solutions.holistic as mp_holistic
-except (ImportError, AttributeError):
-    try:
-        from mediapipe.python.solutions import holistic as mp_holistic
-    except ImportError:
-        mp_holistic = mp.solutions.holistic
 
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
@@ -129,58 +122,73 @@ class SANA_PSL_Translator(nn.Module):
 
 class LandmarkExtractor:
     def __init__(self, alpha=0.75, mirror_fix=True):
-        self.mp_holistic = mp_holistic
-        self.holistic = self.mp_holistic.Holistic(
-            static_image_mode=False,
-            model_complexity=1,
-            smooth_landmarks=True,
-            enable_segmentation=False,
-            refine_face_landmarks=False,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
+        ensure_model_files()
+        
+        # Initialize HandLandmarker
+        hand_opts = mp_vision.HandLandmarkerOptions(
+            base_options=mp_python.BaseOptions(model_asset_path="hand_landmarker.task"),
+            running_mode=mp_vision.RunningMode.IMAGE,
+            num_hands=2,
+            min_hand_detection_confidence=0.35,
+            min_hand_presence_confidence=0.35
         )
+        self.hand_detector = mp_vision.HandLandmarker.create_from_options(hand_opts)
+        
+        # Initialize PoseLandmarker
+        pose_opts = mp_vision.PoseLandmarkerOptions(
+            base_options=mp_python.BaseOptions(model_asset_path="pose_landmarker_lite.task"),
+            running_mode=mp_vision.RunningMode.IMAGE,
+            min_pose_detection_confidence=0.5,
+            min_pose_presence_confidence=0.5
+        )
+        self.pose_detector = mp_vision.PoseLandmarker.create_from_options(pose_opts)
+        
         self.alpha = alpha
         self.mirror_fix = mirror_fix
         self.prev_landmarks = None
 
     def extract_from_frame(self, frame_bgr):
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        results = self.holistic.process(frame_rgb)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
         
-        # 1. Pose Landmarks (33 points -> 66 floats)
+        hand_result = self.hand_detector.detect(mp_image)
+        pose_result = self.pose_detector.detect(mp_image)
+        
+        # 1. Pose Landmarks (66 floats)
         pose_coords = [0.0] * 66
-        if results.pose_landmarks:
-            for i, lm in enumerate(results.pose_landmarks.landmark):
+        if pose_result.pose_landmarks and len(pose_result.pose_landmarks) > 0:
+            for i, lm in enumerate(pose_result.pose_landmarks[0]):
                 pose_coords[i*2] = float(lm.x)
                 pose_coords[i*2 + 1] = float(lm.y)
                 
-        # 2. Left Hand Landmarks (21 points -> 42 floats)
+        # 2. Left & Right Hand Landmarks (42 floats each)
         lh_coords = [0.0] * 42
-        has_hands = False
-        if results.left_hand_landmarks:
-            has_hands = True
-            for i, lm in enumerate(results.left_hand_landmarks.landmark):
-                lh_coords[i*2] = float(lm.x)
-                lh_coords[i*2 + 1] = float(lm.y)
-                
-        # 3. Right Hand Landmarks (21 points -> 42 floats)
         rh_coords = [0.0] * 42
-        if results.right_hand_landmarks:
+        has_hands = False
+        
+        if hand_result.hand_landmarks:
             has_hands = True
-            for i, lm in enumerate(results.right_hand_landmarks.landmark):
-                rh_coords[i*2] = float(lm.x)
-                rh_coords[i*2 + 1] = float(lm.y)
-                
-        # Handle Selfie Mirror Inversion
-        if self.mirror_fix:
-            lh_coords, rh_coords = rh_coords, lh_coords
-            
-        # 4. Face Landmarks (58 floats - neutral zeros)
+            for idx, hand_lms in enumerate(hand_result.hand_landmarks):
+                handedness = "Right"
+                if hand_result.handedness and idx < len(hand_result.handedness):
+                    handedness = hand_result.handedness[idx][0].category_name
+                    
+                coords_flat = []
+                for lm in hand_lms:
+                    coords_flat.extend([float(lm.x), float(lm.y)])
+                    
+                # Mirroring inversion
+                if handedness == "Left":
+                    rh_coords = coords_flat[:42]
+                else:
+                    lh_coords = coords_flat[:42]
+                    
+        # 4. Face Landmarks (58 floats - zeros)
         face_coords = [0.0] * 58
         
         current_frame_208 = np.array(pose_coords + lh_coords + rh_coords + face_coords, dtype=np.float32)
         
-        # Coordinate smoothing across consecutive frames
+        # Smoothing
         if self.prev_landmarks is None:
             self.prev_landmarks = current_frame_208
         else:
@@ -189,7 +197,7 @@ class LandmarkExtractor:
             self.prev_landmarks = smoothed
             current_frame_208 = smoothed
             
-        return current_frame_208, has_hands, results
+        return current_frame_208, has_hands, hand_result, pose_result
 
 # ==============================================================================
 # 4. BILINGUAL HUD OVERLAY WITH TOP-3 PREDICTIONS
@@ -366,7 +374,7 @@ def main():
         fps_history.append(fps)
         avg_fps = sum(fps_history) / len(fps_history)
 
-        landmarks, has_hands, hand_result = extractor.extract_from_frame(frame)
+        landmarks, has_hands, hand_result, pose_result = extractor.extract_from_frame(frame)
 
         # Draw hand bones and physical labels
         if hand_result.hand_landmarks:
