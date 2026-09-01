@@ -122,7 +122,6 @@ class SANA_PSL_Translator(nn.Module):
 
 class LandmarkExtractor:
     def __init__(self, alpha=0.75, mirror_fix=True):
-        ensure_model_files()
         
         # Initialize HandLandmarker
         hand_opts = mp_vision.HandLandmarkerOptions(
