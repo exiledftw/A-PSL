@@ -282,7 +282,7 @@ def draw_hud(frame, state, buffer_len, target_frames, top_preds, latency_ms, fps
         font_sub  = ImageFont.load_default()
         font_meta = ImageFont.load_default()
 
-    draw.text((35, h - card_h + 8), "(TOGGLE MODE: Press SPACE to start recording. Press SPACE again to translate!  |  'Q': Quit)", font=font_meta, fill=(130, 160, 190))
+    draw.text((35, h - card_h + 8), "(AUTO MODE: Raise hands to sign. Drop hands to translate! | 'Q': Quit)", font=font_meta, fill=(130, 160, 190))
     
     if len(top_preds) > 0:
         raw_eng = top_preds[0]
@@ -339,7 +339,7 @@ def main():
         ckpt = torch.load(model_path, map_location=device)
         state_dict = ckpt.get("model_state_dict", ckpt)
         model.load_state_dict(state_dict, strict=False)
-        print("✅ 82.37% Accuracy Model Loaded Successfully!")
+        print("✅ Fine-Tuned Medical Model Loaded Successfully!")
     else:
         print(f"Warning: Checkpoint '{model_path}' not found. Please verify file path.")
 
@@ -361,7 +361,7 @@ def main():
     top_predictions = []
     last_latency = 0.0
     recording_active = False
-    prev_space_down = False
+    hands_missing_frames = 0
 
     fps_history = collections.deque(maxlen=20)
     prev_time = time.time()
@@ -421,25 +421,29 @@ def main():
             recording_active = False
             state = "IDLE"
 
-        # Hardware Toggle Logic: Detect spacebar PRESS edge (transition from up to down)
-        is_space_down = (ctypes.windll.user32.GetAsyncKeyState(0x20) & 0x8000) != 0
+        # Auto-Trigger Logic: Detect Hands
+        hands_present = np.sum(np.abs(landmarks[66:150])) > 0
         
-        if is_space_down and not prev_space_down:
+        if hands_present:
             if not recording_active:
-                # Start recording
                 gesture_buffer.clear()
                 recording_active = True
                 state = "RECORDING"
+                hands_missing_frames = 0
             else:
-                # Stop recording & trigger
-                recording_active = False
+                hands_missing_frames = 0
+        else:
+            if recording_active:
+                hands_missing_frames += 1
+                if hands_missing_frames > 25: # Hands down for ~1 second
+                    recording_active = False
                 if len(gesture_buffer) >= 10:
                     should_trigger = True
                 else:
                     gesture_buffer.clear()
                     state = "IDLE"
                     
-        prev_space_down = is_space_down
+        
 
         # Capture frame if recording is active
         if recording_active:
@@ -455,14 +459,27 @@ def main():
             t0 = time.time()
 
             # 1. Temporally Resample gesture to EXACTLY 60 frames (100% training parity)
-            resampled_60 = resample_sequence_to_60_frames(gesture_buffer)
+            
 
             # 2. Prepare 100-length input tensor
+            
+            # Directly pad/truncate to exactly 100 frames (matches Khizer's dataset padding)
+            arr = np.array(gesture_buffer, dtype=np.float32)
+            T = arr.shape[0]
+            if T > 100:
+                arr = arr[:100]
+                T = 100
+                
             padded = np.zeros((1, 100, 208), dtype=np.float32)
-            padded[0, :60] = resampled_60
+            padded[0, :T] = arr
             
             mask = np.zeros((1, 100), dtype=np.float32)
-            mask[0, :60] = 1.0
+            mask[0, :T] = 1.0
+
+            
+            
+            mask = np.zeros((1, 100), dtype=np.float32)
+            
 
             input_tensor = torch.tensor(padded, dtype=torch.float32, device=device)
             mask_tensor  = torch.tensor(mask, dtype=torch.float32, device=device)
