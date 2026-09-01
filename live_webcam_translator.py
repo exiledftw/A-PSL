@@ -103,52 +103,21 @@ class SANA_PSL_Translator(nn.Module):
         downsampled_mask = attention_mask[:, ::4]
         if downsampled_mask.size(1) != encoder_hidden_states.size(1):
             downsampled_mask = downsampled_mask[:, :encoder_hidden_states.size(1)]
+        from transformers.modeling_outputs import BaseModelOutput
         encoder_outputs = BaseModelOutput(last_hidden_state=encoder_hidden_states)
         
         # Beam Search returning Top-K predictions
-        return self.mt5.generate(
+        outputs = self.mt5.generate(
             encoder_outputs=encoder_outputs,
             attention_mask=downsampled_mask,
             max_new_tokens=16,
             num_beams=num_beams,
             num_return_sequences=min(num_beams, 3),
-            repetition_penalty=1.5
+            repetition_penalty=1.5,
+            return_dict_in_generate=True,
+            output_scores=True
         )
-
-# ==============================================================================
-# 2. TEMPORAL 60-FRAME RESAMPLING
-# ==============================================================================
-
-def resample_sequence_to_60_frames(raw_buffer):
-    """
-    Linearly resamples an arbitrary length gesture buffer (e.g. 15 to 45 frames)
-    to exactly 60 frames to match the training dataset distribution.
-    """
-    arr = np.array(raw_buffer, dtype=np.float32) # (T, 208)
-    T = arr.shape[0]
-    if T == 60:
-        return arr
-    
-    orig_times = np.linspace(0, 1, T)
-    target_times = np.linspace(0, 1, 60)
-    
-    resampled = np.zeros((60, 208), dtype=np.float32)
-    for dim in range(208):
-        resampled[:, dim] = np.interp(target_times, orig_times, arr[:, dim])
-        
-    return resampled
-
-# ==============================================================================
-# 3. LANDMARK EXTRACTION
-# ==============================================================================
-
-def ensure_model_files():
-    if not os.path.exists("hand_landmarker.task"):
-        print("Downloading MediaPipe hand asset...")
-        urllib.request.urlretrieve(
-            "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
-            "hand_landmarker.task"
-        )
+        return outputs.sequences, outputs.sequences_scores
 
 class LandmarkExtractor:
     def __init__(self, alpha=0.75):
