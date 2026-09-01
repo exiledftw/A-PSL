@@ -486,16 +486,23 @@ def main():
 
             with torch.no_grad():
                 # Beam search for top-3 predictions
-                gen_ids = model.generate_topk(input_tensor, attention_mask=mask_tensor, num_beams=3)
+                gen_ids, gen_scores = model.generate_topk(input_tensor, attention_mask=mask_tensor, num_beams=3)
                 last_latency = (time.time() - t0) * 1000
                 
                 decoded = [tokenizer.decode(g, skip_special_tokens=True).strip() for g in gen_ids]
-                # Filter unique non-empty predictions
+                
                 unique_preds = []
-                for d in decoded:
-                    if d and d not in unique_preds:
-                        unique_preds.append(d)
-                top_predictions = unique_preds if unique_preds else ["Waiting for gesture..."]
+                seen_texts = set()
+                for i, d in enumerate(decoded):
+                    if d and d not in seen_texts:
+                        seen_texts.add(d)
+                        conf = float(torch.exp(gen_scores[i]).item()) * 100 if gen_scores is not None else 0.0
+                        unique_preds.append((d, conf))
+                        
+                if not unique_preds:
+                    unique_preds = [("Waiting for gesture...", 0.0)]
+                    
+                top_predictions = unique_preds
 
             primary_text, primary_conf = top_predictions[0]
             ur_sub = EN_TO_URDU.get(primary_text, primary_text)
