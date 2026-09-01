@@ -57,10 +57,23 @@ cells = [
             "import matplotlib.pyplot as plt\n",
             "from tqdm.auto import tqdm\n",
             "\n",
+            "# Robust MediaPipe import compatible with all versions\n",
+            "try:\n",
+            "    import mediapipe.python.solutions.holistic as mp_holistic\n",
+            "    import mediapipe.python.solutions.drawing_utils as mp_drawing\n",
+            "except (ImportError, AttributeError):\n",
+            "    try:\n",
+            "        import mediapipe as mp\n",
+            "        mp_holistic = mp.solutions.holistic\n",
+            "        mp_drawing = mp.solutions.drawing_utils\n",
+            "    except AttributeError:\n",
+            "        from mediapipe.python.solutions import holistic as mp_holistic\n",
+            "        from mediapipe.python.solutions import drawing_utils as mp_drawing\n",
+            "\n",
             "import mediapipe as mp\n",
             "\n",
             "print(\"\\n\" + \"=\" * 60)\n",
-            "print(\"✅ Google Drive Mounted & Dependencies Installed Successfully!\")\n",
+            "print(\"✅ Google Drive Mounted & MediaPipe Loaded Successfully!\")\n",
             "print(f\"OpenCV Version:    {cv2.__version__}\")\n",
             "print(f\"MediaPipe Version: {mp.__version__}\")\n",
             "print(\"=\" * 60)"
@@ -74,7 +87,7 @@ cells = [
         "source": [
             "# ── Cell 2: Specify Your Dataset Path & Configuration ────────────────────────\n",
             "# 👇 SPECIFY YOUR EXACT GOOGLE DRIVE DATASET PATH HERE:\n",
-            "DATASET_PATH = \"/content/drive/MyDrive/Test Data\"\n",
+            "DATASET_PATH = \"/content/drive/MyDrive/test_dataset_PSL\"\n",
             "\n",
             "CONFIG = {\n",
             "    # Paths\n",
@@ -125,12 +138,20 @@ cells = [
         "outputs": [],
         "source": [
             "# ── Cell 3: MediaPipe Holistic 208-Dimension Landmark Extractor ─────────────\n",
+            "try:\n",
+            "    import mediapipe.python.solutions.holistic as mp_holistic\n",
+            "except (ImportError, AttributeError):\n",
+            "    try:\n",
+            "        from mediapipe.python.solutions import holistic as mp_holistic\n",
+            "    except ImportError:\n",
+            "        import mediapipe as mp\n",
+            "        mp_holistic = mp.solutions.holistic\n",
+            "\n",
             "class MediaPipeVideoExtractor:\n",
             "    def __init__(self, min_detection_conf=0.5, min_tracking_conf=0.5, mirror_fix=True, alpha=0.75):\n",
-            "        self.mp_holistic = mp.solutions.holistic\n",
-            "        self.holistic = self.mp_holistic.Holistic(\n",
+            "        self.holistic = mp_holistic.Holistic(\n",
             "            static_image_mode=False,\n",
-            "            model_complexity=2,\n",
+            "            model_complexity=1,\n",
             "            enable_segmentation=False,\n",
             "            refine_face_landmarks=False,\n",
             "            min_detection_confidence=min_detection_conf,\n",
@@ -594,4 +615,4 @@ out_path = os.path.join(r"d:\Beta\A_PSL", "keypoints.ipynb")
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(notebook, f, indent=2)
 
-print(f"Generated clean manual-path Colab {out_path} with {len(cells)} cells.")
+print(f"Regenerated fixed MediaPipe import Colab {out_path} with {len(cells)} cells.")
