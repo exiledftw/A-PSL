@@ -119,6 +119,16 @@ class SANA_PSL_Translator(nn.Module):
         )
         return outputs.sequences, outputs.sequences_scores
 
+def ensure_model_files():
+    import urllib.request
+    import os
+    if not os.path.exists("hand_landmarker.task"):
+        print("Downloading hand_landmarker.task...")
+        urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", "hand_landmarker.task")
+    if not os.path.exists("pose_landmarker_lite.task"):
+        print("Downloading pose_landmarker_lite.task...")
+        urllib.request.urlretrieve("https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", "pose_landmarker_lite.task")
+
 class LandmarkExtractor:
     def __init__(self, alpha=0.75):
         ensure_model_files()
