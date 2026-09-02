@@ -129,9 +129,20 @@
                 // Stop any previous action
                 if (action) action.stop();
                 
-                // CRITICAL FIX: Rename BVH tracks to match the cleaned FBX bone names
+                // CRITICAL FIX: Retargeting logic
+                // 1. Rename BVH tracks to match the cleaned FBX bone names
                 clip.tracks.forEach((track) => {
                     track.name = track.name.replace('mixamorig:', '').replace('mixamorig', '');
+                });
+                
+                // 2. Prevent Skeleton Collapse:
+                // BVH files store explicit position lengths for every bone. 
+                // Forcing this onto an FBX shrinks/collapses the mesh.
+                // We must DELETE all position tracks EXCEPT for the main Root/Hips bone!
+                clip.tracks = clip.tracks.filter((track) => {
+                    if (track.name.endsWith('.quaternion')) return true; // Keep all rotations
+                    if (track.name.includes('Hips') && track.name.endsWith('.position')) return true; // Keep Root movement
+                    return false; // DELETE all other bone translations that cause collapsing
                 });
                 
                 action = mixer.clipAction(clip);
