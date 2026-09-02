@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PSL Avatar BVH Player</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #canvas-container { width: 80vw; height: 70vh; border: 2px solid #333; border-radius: 8px; margin-bottom: 20px; }
+        .controls { display: flex; gap: 15px; align-items: center; }
+        select { padding: 10px; font-size: 16px; border-radius: 5px; }
+        button { padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; transition: background 0.2s; }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #status { margin-bottom: 10px; font-size: 18px; color: #ffeb3b; }
+    </style>
+    <!-- Import Maps for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Doctor-to-Patient Avatar (BVH Player)</h2>
+    <div id="status">Loading Base Avatar...</div>
+    <div id="canvas-container"></div>
+    
+    <div class="controls">
+        <select id="bvh-selector" disabled>
+            <option value="">-- Select BVH Animation --</option>
+            <option value="bvh_files/do_you_feel_dizzy.bvh">Do you feel dizzy</option>
+            <option value="bvh_files/how_do_you_feel.bvh">How do you feel</option>
+            <option value="bvh_files/I_was_born_deaf.bvh">I was born deaf</option>
+            <option value="bvh_files/keep_your_feet_moisturized.bvh">Keep your feet moisturized</option>
+        </select>
+        <button id="btn-play" disabled>Play Animation</button>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+        import { BVHLoader } from 'three/addons/loaders/BVHLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Core Setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x222222);
+        scene.add(new THREE.GridHelper(400, 10, 0x888888, 0x444444));
+        
+        // Lighting
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+        hemiLight.position.set(0, 200, 0);
+        scene.add(hemiLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(0, 200, 100);
+        scene.add(dirLight);
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 2000);
+        camera.position.set(0, 150, 300);
+        
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 100, 0);
+        controls.update();
+        
+        const clock = new THREE.Clock();
+        let mixer; // Animation Mixer
+        let action; // Current action
+        let avatarMesh;
+
+        const fbxLoader = new FBXLoader();
+        const bvhLoader = new BVHLoader();
+        
+        const statusDiv = document.getElementById('status');
+        const playBtn = document.getElementById('btn-play');
+        const bvhSelector = document.getElementById('bvh-selector');
+
+        // 1. Load the Base Y-Bot Body
+        fbxLoader.load("./Y%20Bot.fbx", (avatar) => {
+            avatarMesh = avatar;
+            scene.add(avatar);
+            
+            // Initialize the animation mixer on the avatar body
+            mixer = new THREE.AnimationMixer(avatar);
+            
+            statusDiv.innerText = "Base Avatar Loaded. Select a BVH animation below.";
+            statusDiv.style.color = "#4CAF50";
+            
+            // Enable selector
+            bvhSelector.disabled = false;
+
+        }, undefined, (e) => console.error("Avatar Error:", e));
+
+        // 2. Handle BVH Selection
+        bvhSelector.addEventListener('change', (e) => {
+            const bvhPath = e.target.value;
+            if (!bvhPath) {
+                playBtn.disabled = true;
+                return;
+            }
+            
+            statusDiv.innerText = `Loading ${bvhPath}...`;
+            statusDiv.style.color = "#ffeb3b";
+            playBtn.disabled = true;
+
+            // Load BVH
+            bvhLoader.load(bvhPath, (result) => {
+                const clip = result.clip;
+                
+                // Stop any previous action
+                if (action) action.stop();
+                
+                // Rename BVH tracks to strictly match the FBX bones if needed
+                // FBX bones are often named like "mixamorigHips" or "mixamorig:Hips"
+                // BVHLoader uses the exact names from the BVH file.
+                
+                action = mixer.clipAction(clip);
+                action.setLoop(THREE.LoopOnce);
+                action.clampWhenFinished = true;
+                
+                statusDiv.innerText = `Ready! Press Play.`;
+                statusDiv.style.color = "#4CAF50";
+                playBtn.disabled = false;
+                
+                // Auto-play on load
+                action.reset();
+                action.play();
+                
+            }, undefined, (e) => {
+                console.error("BVH Error:", e);
+                statusDiv.innerText = "Failed to load BVH.";
+                statusDiv.style.color = "red";
+            });
+        });
+
+        // Play Button Event Listener
+        playBtn.addEventListener('click', () => {
+            if (action) {
+                action.reset();
+                action.play();
+                statusDiv.innerText = `Playing: ${bvhSelector.options[bvhSelector.selectedIndex].text}`;
+            }
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            if (mixer) {
+                mixer.update(clock.getDelta());
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>
