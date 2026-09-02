@@ -89,6 +89,14 @@
         // 1. Load the Base Y-Bot Body
         fbxLoader.load("Y Bot.fbx", (avatar) => {
             avatarMesh = avatar;
+            
+            // CRITICAL FIX: Clean up FBX bone names to remove 'mixamorig:' prefix
+            avatar.traverse((child) => {
+                if (child.isBone) {
+                    child.name = child.name.replace('mixamorig:', '').replace('mixamorig', '');
+                }
+            });
+            
             scene.add(avatar);
             
             // Initialize the animation mixer on the avatar body
@@ -121,9 +129,10 @@
                 // Stop any previous action
                 if (action) action.stop();
                 
-                // Rename BVH tracks to strictly match the FBX bones if needed
-                // FBX bones are often named like "mixamorigHips" or "mixamorig:Hips"
-                // BVHLoader uses the exact names from the BVH file.
+                // CRITICAL FIX: Rename BVH tracks to match the cleaned FBX bone names
+                clip.tracks.forEach((track) => {
+                    track.name = track.name.replace('mixamorig:', '').replace('mixamorig', '');
+                });
                 
                 action = mixer.clipAction(clip);
                 action.setLoop(THREE.LoopOnce);
