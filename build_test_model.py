@@ -1,4 +1,6 @@
-{
+﻿import json
+
+notebook = {
     "cells": [
         {
             "cell_type": "markdown",
@@ -10,7 +12,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "# --- 1. DOWNLOAD MODEL FROM WEIGHTS & BIASES ---\n",
@@ -43,7 +45,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "import numpy as np\n",
@@ -88,7 +90,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "# --- 3. SANA ARCHITECTURE ---\n",
@@ -171,7 +173,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "# --- 4. LOADING THE H2S FOUNDATION MODEL & TOKENIZER ---\n",
@@ -206,7 +208,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "# --- 5. DATASET PREPARATION ---\n",
@@ -285,7 +287,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "if len(train_dataset) > 0:\n",
@@ -317,7 +319,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "# Freeze mT5, unfreeze cross-attention to train fast\n",
@@ -393,7 +395,7 @@
         },
         {
             "cell_type": "code",
-            "execution_count": null,
+            "execution_count": None,
             "metadata": {},
             "source": [
                 "import matplotlib.pyplot as plt\n",
@@ -430,7 +432,7 @@
                 "axs[1, 1].legend()\n",
                 "\n",
                 "plt.tight_layout()\n",
-                "plt.show()"
+                "plt.show()" 
             ],
             "outputs": []
         }
@@ -445,3 +447,7 @@
     "nbformat": 4,
     "nbformat_minor": 5
 }
+
+with open("test_model.ipynb", "w", encoding="utf-8") as f:
+    json.dump(notebook, f, indent=4)
+print("Successfully generated updated test_model.ipynb with W&B integration")
