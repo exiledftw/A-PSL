@@ -18,7 +18,8 @@
         {
             "imports": {
                 "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "fflate": "https://unpkg.com/fflate@0.8.2/esm/index.js"
             }
         }
     </script>
@@ -86,7 +87,7 @@
         const bvhSelector = document.getElementById('bvh-selector');
 
         // 1. Load the Base Y-Bot Body
-        fbxLoader.load("./Y%20Bot.fbx", (avatar) => {
+        fbxLoader.load("Y Bot.fbx", (avatar) => {
             avatarMesh = avatar;
             scene.add(avatar);
             
