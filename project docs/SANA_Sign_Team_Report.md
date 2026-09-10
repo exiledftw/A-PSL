@@ -95,12 +95,7 @@ Early in the project, we explored generating 3D avatar animations (FBX / BVH for
 - **Data:** 31,047 clips.
 - **Val Loss:** `3.4176` (established gesture spatial physics).
 
-### Phase 2: PSL 71-Word Few-Shot Adaptation
-- **Epoch 1:** Train Loss `16.17` | Val Loss `4.62`
-- **Epoch 3:** Train Loss `2.73`  | Val Loss `1.45`
-- **Epoch 5:** Train Loss `1.51`  | **Val Loss `0.7310`**
-
-### Phase 3: Medical Fine-Tuning (15 Classes, 30 Epochs)
+### Phase 2: Medical Fine-Tuning (15 Classes, 30 Epochs)
 
 | Epoch | Loss | Epoch | Loss | Epoch | Loss |
 |---|---|---|---|---|---|
@@ -176,18 +171,6 @@ Model converged cleanly to **0.0315**, yielding 100% classification accuracy acr
 4. **Native Beam Search:** Decoding with 4 beams and softmax confidence scores outperforms rigid candidate-matching loops.
 
 ---
-
-## 9. SIMPACT Demo Day Battle Plan
-
-**Date:** September 17, 2026 | **Venue:** CIME Karachi
-
-### Staging Setup:
-1. **Primary Screen (Doctor Workstation):**
-   - Open Chrome to `https://psl-sana.vercel.app/`.
-   - Log in to the Doctor Console (`admin` / `admin123`).
-2. **Secondary Screen (Patient Bedside Terminal):**
-   - Open Patient Dashboard view.
-   - Position webcam with adequate lighting.
 
 ### Live 10-Minute Presentation Script:
 1. **The Crisis (2 min):** Explain the reality of 1M+ deaf Pakistanis with zero hospital interpreters.
