@@ -1,6 +1,6 @@
 ﻿# EMRChains — SANA AI
-### Team Progress Report & Internal Technical Retrospective
-#### Rehan (ML Lead), Khizer (Motion Capture / Signer), Reyhan (Interface Design)
+### Team 
+#### Rehan & Khizer (Project Developers)
 
 > **Project:** EMRChains — SANA AI (A-PSL)
 > **Web Deployment:** [https://psl-sana.vercel.app/](https://psl-sana.vercel.app/)
