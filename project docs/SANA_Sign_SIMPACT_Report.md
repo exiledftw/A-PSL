@@ -295,17 +295,7 @@ Clinical applications require strict safety mechanisms to prevent misdiagnosis:
 
 ---
 
-## 11. Team & Roles
-
-| Name | Role | Responsibilities |
-|---|---|---|
-| **Rehan** | ML Lead / Full-Stack Integration | Model architecture, training pipeline (Phases 1–3), Oracle Cloud backend API integration, webcam inference engine, Vercel web application integration |
-| **Khizer** | Motion Capture / Signer | PSL dataset creation, gesture performance, clinical phrase recording, live validation testing |
-| **Reyhan** | Interface Design | EMRChains UI/UX architecture, medical portal workflows, patient/doctor interaction design |
-
----
-
-## 12. Future Roadmap
+## 11. Future Roadmap
 
 | Milestone | Target | Description |
 |---|---|---|
