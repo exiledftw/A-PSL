@@ -1,10 +1,12 @@
-﻿# EMRChains — SANA AI
+# EMRChains — SANA AI
 ### Real-Time Pakistani Sign Language (PSL) Medical Translation System
 #### Formal Project Report | SIMPACT 2026 — CIME Karachi, September 17, 2026
 
 > **Project Name:** EMRChains — SANA AI (PSL)
 > **Web Deployment:** [https://psl-sana.vercel.app/](https://psl-sana.vercel.app/)
-> **Team:** Muzna Khan(Founder/CEO), Rehan(project developer), Khizer(Project developer), Abbas Ali, Haseeb, Aisha Mehmood
+> **Team:** Muzna Khan (Founder/CEO), Rehan (Project Developer), Khizer (Project Developer), Abbas Ali, Haseeb, Aisha Mehmood
+> **Dataset & Sign Specialists:** Bulbul Jehan (Senior Teacher), Bilqees Bano (Senior Teacher)
+> **Institutional Partner:** National Special Education Centre for Hearing Impaired Children, H-9/4 Islamabad
 > **Event:** SIMPACT 2026 — Social Impact Technology Showcase
 > **Status:** MVP Complete & Cloud-Deployed
 
@@ -168,8 +170,12 @@ Designed for physician examination, diagnostic queries, and medical instructions
 - Covers triage questions ("are you allergic to anything ?", "how can i help you ?", "Are you feeling dizzy?", etc.).
 - Each phrase is linked to a verified, high-definition, pre-recorded PSL video stored natively on the Vercel web application.
 
-### 5.3 Dataset Construction & Keypoint Extraction
-- **Signers:** Recorded by Khizer and Rehan in controlled clinical angles.
+### 5.3 Dataset Construction, Verification & Institutional Collaboration
+- **Institutional Partnership:** The clinical sign vocabulary, grammatical fidelity, and motion definitions were established and reviewed with senior deaf education specialists:
+  - **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+  - **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+  - **National Special Education Centre for Hearing Impaired Children**, H-9/4 Islamabad
+- **Signers & Recording Protocol:** Gestures were recorded by Khizer and Rehan under controlled lighting and camera angles, incorporating the authentic syntactic and handshape nuances guided by the Centre's educators.
 - **Keypoint Format:** 60 files per class, each shape `(60, 208)` — strictly keypoint coordinate matrices (`.npy`), preserving privacy with zero raw video storage on disk.
 - **Feature Vector:** 208 dimensions per frame (33 Pose landmarks = 66 dims, 21 Left Hand = 42 dims, 21 Right Hand = 42 dims, Face slots = 58 zeros).
 - **Data Augmentation:** 6× augmentation applied across spatial scale, translation, frame-rate variation, and jitter.
@@ -288,7 +294,30 @@ Clinical applications require strict safety mechanisms to prevent misdiagnosis:
 
 ---
 
-## 11. Future Roadmap
+## 11. Team, Collaborators & Institutional Acknowledgments
+
+### Project Team:
+- **Muzna Khan** — Founder & CEO
+- **Rehan** — Project Developer (Machine Learning & Translation Architecture)
+- **Khizer** — Project Developer (Dataset Recording, CV Extraction & Pipeline Integration)
+- **Abbas Ali** — Technical Contributor
+- **Haseeb** — Technical Contributor
+- **Aisha Mehmood** — Healthcare & Clinical Research Contributor
+
+### Institutional Dataset Partner:
+- **National Special Education Centre for Hearing Impaired Children (NSEC-HIC)**
+  - *Location:* Sector H-9/4, Islamabad, Pakistan
+  - The premier national educational and training institution dedicated to the deaf and hard-of-hearing community in Pakistan.
+
+### Expert Sign Language & Dataset Collaborators:
+- **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+
+We extend our profound gratitude to **Bulbul Jehan** and **Bilqees Bano** for their invaluable domain expertise, pedagogical insights, and rigorous evaluation of Pakistani Sign Language (PSL) medical gestures. Their collaborative review ensured that our clinical vocabularies, anatomical references, and syntactic nuances reflect genuine, authentic communication used by deaf individuals across Pakistan.
+
+---
+
+## 12. Future Roadmap
 
 | Milestone | Target | Description |
 |---|---|---|

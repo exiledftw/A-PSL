@@ -75,4 +75,15 @@ To deliver a working prototype for contests and demonstrations without waiting f
 4.  Verify the pipeline by successfully extracting and structuring `dataset[0]` without triggering Kaggle OOM errors.
 
 ---
+
+## 5. Dataset Authenticity & Institutional Collaboration
+
+To overcome the lack of continuous medical PSL resources, the clinical vocabulary, handshape kinematics, and grammatical gestures were defined and validated in direct partnership with:
+- **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **National Special Education Centre for Hearing Impaired Children (NSEC-HIC)**, Sector H-9/4, Islamabad
+
+Their domain mentorship and evaluation ensure that the recorded dataset adheres to authentic Pakistani Sign Language syntax and spatial dynamics, enabling high-fidelity clinical triage translation.
+
+---
 *Note: This document is strictly bounded by what is technically feasible under current hardware constraints. No assumptions are made regarding the existence of continuous PSL datasets; all PSL data required for Phase 3 and the MVP will be custom-recorded under constrained protocols.*

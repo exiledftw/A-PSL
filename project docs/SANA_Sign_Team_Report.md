@@ -1,6 +1,11 @@
-﻿# EMRChains — SANA AI
-### Team 
-#### Rehan & Khizer (Project Developers)
+# EMRChains — SANA AI
+### Team & Collaborators
+#### Core Developers: Rehan & Khizer
+#### Dataset & Educational Specialists:
+- **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+#### Institutional Partner:
+- **National Special Education Centre for Hearing Impaired Children**, H-9/4 Islamabad
 
 > **Project:** EMRChains — SANA AI (A-PSL)
 > **Web Deployment:** [https://psl-sana.vercel.app/](https://psl-sana.vercel.app/)
@@ -77,8 +82,9 @@ Early in the project, we explored generating 3D avatar animations (FBX / BVH for
 ### September 2 — Inference Pipeline Discovery
 - Identified and fixed the temporal alignment contract: live webcam input must follow the exact two-step pipeline (`resample_to_60` → `pad_to_100`) to match training distribution.
 
-### September 8–9 — Comprehensive Medical Dataset Collection
-- Recorded the complete 15-class medical dataset (Khizer + Rehan).
+### September 8–9 — Comprehensive Medical Dataset Collection & Institutional Collaboration
+- Collaborated with senior deaf education specialists **Bulbul Jehan** (Senior Teacher) and **Bilqees Bano** (Senior Teacher) from the **National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad** to validate and standardize authentic medical PSL signs and expressions.
+- Recorded the complete 15-class medical dataset (Khizer + Rehan) with expert verification from the Centre.
 - Extracted 60 `.npy` samples per class (shape: `60, 208`), totaling 900 keypoint files.
 
 ### September 10 — Final Fine-Tuning & Web Deployment
@@ -136,6 +142,14 @@ Model converged cleanly to **0.0315**, yielding 100% classification accuracy acr
 ### Doctor Inquiries (13 Phrases — Driven by Pre-Recorded Video):
 - Tailored for physician triage and diagnosis.
 - Matched via NLP and verified via the Doctor Preview screen.
+
+### Dataset Verification & Institutional Collaboration:
+The 15 patient medical signs and 13 doctor inquiries were reviewed, standardized, and recorded with the active guidance and expert collaboration of:
+- **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
+- **National Special Education Centre for Hearing Impaired Children**, H-9/4 Islamabad
+
+Their contributions ensured that all signs reflect authentic, natural Pakistani Sign Language (PSL) grammar and medical terminology used by the Pakistani deaf community in clinical and emergency contexts.
 
 ---
 
