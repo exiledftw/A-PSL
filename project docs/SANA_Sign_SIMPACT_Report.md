@@ -2,9 +2,9 @@
 ### Real-Time Pakistani Sign Language (PSL) Medical Translation System
 #### Formal Project Report | SIMPACT 2026 — CIME Karachi, September 17, 2026
 
-> **Project Name:** EMRChains — SANA AI (A-PSL)
+> **Project Name:** EMRChains — SANA AI (PSL)
 > **Web Deployment:** [https://psl-sana.vercel.app/](https://psl-sana.vercel.app/)
-> **Team:** Rehan (ML Lead / Full-Stack Integration), Khizer (Motion Capture / Signer), Reyhan (Interface Design)
+> **Team:** Muzna Khan(Founder/CEO), Rehan(project developer), Khizer(Project developer), Abbas Ali, Haseeb, Aisha Mehmood
 > **Event:** SIMPACT 2026 — Social Impact Technology Showcase
 > **Status:** MVP Complete & Cloud-Deployed
 
@@ -165,7 +165,7 @@ Trained for emergency triage, symptom description, and immediate patient feedbac
 
 ### 5.2 Doctor Clinical Vocabulary (13 Specialized Physician Phrases)
 Designed for physician examination, diagnostic queries, and medical instructions:
-- Covers triage questions ("Where does it hurt?", "Do you have fever?", "Are you dizzy?", "Take this medicine", etc.).
+- Covers triage questions ("are you allergic to anything ?", "how can i help you ?", "Are you feeling dizzy?", etc.).
 - Each phrase is linked to a verified, high-definition, pre-recorded PSL video stored natively on the Vercel web application.
 
 ### 5.3 Dataset Construction & Keypoint Extraction
@@ -229,14 +229,7 @@ The model underwent three progressive training stages to achieve high-accuracy c
 - **Dataset:** 31,047 continuous sign language clips from How2Sign.
 - **Validation Loss:** Decreased from 4.2730 to **3.4176**, providing a 21% perplexity reduction on continuous physical movement.
 
-### 7.2 Phase 2 — PSL Domain Adaptation
-- **Dataset:** 71 isolated Pakistani Sign Language signs (`mohib123456`).
-- **Results:** 5 epochs of few-shot adaptation:
-  - Epoch 1: Val Loss `4.6220`
-  - Epoch 3: Val Loss `1.4493`
-  - Epoch 5: Val Loss **`0.7310`** (84% validation loss reduction, establishing direct Urdu decoding).
-
-### 7.3 Phase 3 — Medical Fine-Tuning (15-Class Medical Dataset, 30 Epochs)
+### 7.2 Phase 2 — Medical Fine-Tuning (15-Class Medical Dataset, 30 Epochs)
 The model was fine-tuned on the 15-class medical dataset over 30 epochs on a Kaggle T4 GPU:
 
 | Epoch | Loss | Epoch | Loss | Epoch | Loss |
@@ -287,11 +280,11 @@ Clinical applications require strict safety mechanisms to prevent misdiagnosis:
 
 | Parameter | Project Target | Achieved Metric | Status |
 |---|---|---|---|
-| **Model Inference Latency** | ≤ 100 ms | **~63 ms** | ✅ Exceeded by 1.6× |
-| **Held-Out Validation Accuracy** | ≥ 90% | **100% (15/15 classes)** | ✅ Exceeded |
-| **Supported Languages** | Urdu & English | **Bilingual Native Support** | ✅ Complete |
-| **Cloud Deployment** | Web Accessible | **Live on Vercel + Oracle** | ✅ Operational |
-| **Clinical Safety Gate** | Required | **Doctor Preview Enforced** | ✅ Implemented |
+| **Model Inference Latency** | ≤ 100 ms | **~63 ms** |  Exceeded by 1.6× |
+| **Held-Out Validation Accuracy** | ≥ 90% | **100% (15/15 classes)** |  Exceeded |
+| **Supported Languages** | Urdu & English | **Bilingual Native Support** |  Complete |
+| **Cloud Deployment** | Web Accessible | **Live on Vercel + Oracle** |  Operational |
+| **Clinical Safety Gate** | Required | **Doctor Preview Enforced** |  Implemented |
 
 ---
 
