@@ -4,7 +4,7 @@
 > **Project:** SANA Sign (A-PSL)
 > **Event:** SIMPACT 2026 — CIME Karachi, September 17, 2026
 > **Version:** Phase 6 MVP
-> **Team:** Rehan (ML / Backend), Khizer (Dataset Capture & Pipeline)
+> **Team:** Rehan (ML / Backend), Khizer (Dataset Capture & Pipeline), Aliyana Nawaz (Clinical Psychologist, NTCSP), Parveena Abbas (Psychologist, IBT Certified)
 > **Dataset Collaborators:** Bulbul Jehan (Senior Teacher), Bilqees Bano (Senior Teacher) — National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
 > **Partner Institution:** National Special Education Centre for Hearing Impaired Children, H-9/4 Islamabad
 > **Status:** 🟡 Active Development

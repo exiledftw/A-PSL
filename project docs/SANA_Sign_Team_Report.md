@@ -1,6 +1,9 @@
 # EMRChains — SANA AI
 ### Team & Collaborators
 #### Core Developers: Rehan & Khizer
+#### Clinical & Psychological Advisory:
+- **Aliyana Nawaz** — Clinical Psychologist, National Training Center for Special Person Islamabad (NTCSP)
+- **Parveena Abbas** — Psychologist, IBT Certified
 #### Dataset & Educational Specialists:
 - **Bulbul Jehan** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad
 - **Bilqees Bano** — Senior Teacher, National Special Education Centre for Hearing Impaired Children H-9/4 Islamabad

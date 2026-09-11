@@ -4,7 +4,7 @@
 
 > **Project Name:** EMRChains — SANA AI (PSL)
 > **Web Deployment:** [https://psl-sana.vercel.app/](https://psl-sana.vercel.app/)
-> **Team:** Muzna Khan (Founder/CEO), Rehan (Project Developer), Khizer (Project Developer), Abbas Ali, Haseeb, Aisha Mehmood
+> **Team:** Muzna Khan (Founder/CEO), Rehan (Project Developer), Khizer (Project Developer), Abbas Ali, Haseeb, Aisha Mehmood, Aliyana Nawaz (Clinical Psychologist, NTCSP), Parveena Abbas (Psychologist, IBT Certified)
 > **Dataset & Sign Specialists:** Bulbul Jehan (Senior Teacher), Bilqees Bano (Senior Teacher)
 > **Institutional Partner:** National Special Education Centre for Hearing Impaired Children, H-9/4 Islamabad
 > **Event:** SIMPACT 2026 — Social Impact Technology Showcase
@@ -296,13 +296,15 @@ Clinical applications require strict safety mechanisms to prevent misdiagnosis:
 
 ## 11. Team, Collaborators & Institutional Acknowledgments
 
-### Project Team:
+### Project Team & Clinical Advisory:
 - **Muzna Khan** — Founder & CEO
 - **Rehan** — Project Developer (Machine Learning & Translation Architecture)
 - **Khizer** — Project Developer (Dataset Recording, CV Extraction & Pipeline Integration)
 - **Abbas Ali** — Technical Contributor
 - **Haseeb** — Technical Contributor
 - **Aisha Mehmood** — Healthcare & Clinical Research Contributor
+- **Aliyana Nawaz** — Clinical Psychologist, National Training Center for Special Person Islamabad (NTCSP)
+- **Parveena Abbas** — Psychologist, IBT Certified
 
 ### Institutional Dataset Partner:
 - **National Special Education Centre for Hearing Impaired Children (NSEC-HIC)**
